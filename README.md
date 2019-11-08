@@ -1,2 +1,9 @@
-# GuardedUSB
-An interpreter of GuardedUSB language made with PLY Python created as main project of Translators and Interpreters course of Computer Sciende degree
+# python-interpreter
+An Interpreter made for the class Translators and Interpreters from Computer Science course
+
+# Requirements
+Python 3 
+PLY 3.11
+
+# How to install PLY
+sudo python3 -m pip install ply

@@ -1,0 +1,1810 @@
+Created by PLY version 3.11 (http://www.dabeaz.com/ply)
+
+Unused terminals:
+
+    TkComment
+    TkFor
+    TkFalse
+    TkAtoi
+    TkMax
+    TkTo
+    TkIn
+    TkDo
+    TkNot
+    TkSize
+    TkTrue
+    TkMod
+    TkConcat
+    TkRof
+    TkOd
+    TkMin
+
+Grammar
+
+Rule 0     S' -> program
+Rule 1     program -> bloque
+Rule 2     bloque -> TkOBlock t TkCBlock
+Rule 3     t -> casoInstrucciones
+Rule 4     t -> declaracionVariables casoInstrucciones
+Rule 5     casoInstrucciones -> listaInstrucciones
+Rule 6     casoInstrucciones -> casoInstrucciones TkSemicolon listaInstrucciones
+Rule 7     listaInstrucciones -> instruccionIf
+Rule 8     instruccionIf -> TkIf condicion TkArrow bloque variasGuardias TkFi
+Rule 9     instruccionIf -> TkIf condicion TkArrow printExpression variasGuardias TkFi
+Rule 10    variasGuardias -> TkGuard condicion TkArrow bloque variasGuardias
+Rule 11    variasGuardias -> TkGuard condicion TkArrow printExpression variasGuardias
+Rule 12    variasGuardias -> empty
+Rule 13    condicion -> tipoExpresion
+Rule 14    condicion -> tipoExpresion relation tipoExpresion
+Rule 15    condicion -> condicion operadorBool tipoExpresion
+Rule 16    condicion -> condicion operadorBool tipoExpresion relation tipoExpresion
+Rule 17    operadorBool -> TkAnd
+Rule 18    operadorBool -> TkOr
+Rule 19    tipoExpresion -> expression
+Rule 20    relation -> TkLess
+Rule 21    relation -> TkGreater
+Rule 22    relation -> TkLeq
+Rule 23    relation -> TkGeq
+Rule 24    relation -> TkEqual
+Rule 25    relation -> TkNEqual
+Rule 26    listaInstrucciones -> asignacionVariables
+Rule 27    listaInstrucciones -> readVariables
+Rule 28    listaInstrucciones -> printExpression
+Rule 29    listaInstrucciones -> printlnExpression
+Rule 30    declaracionVariables -> TkDeclare declaracionSemiColon
+Rule 31    declaracionSemiColon -> declaracionSemiColon TkSemicolon declaracion
+Rule 32    declaracionSemiColon -> declaracion
+Rule 33    declaracion -> TkId TkComma declaracion TkComma tipo
+Rule 34    declaracion -> TkId TkTwoPoints tipo
+Rule 35    asignacionVariables -> asignacion
+Rule 36    asignacion -> TkId TkAsig expression
+Rule 37    readVariables -> read
+Rule 38    read -> TkRead TkId
+Rule 39    printExpression -> print
+Rule 40    print -> TkPrint expression
+Rule 41    printlnExpression -> println
+Rule 42    println -> TkPrintln expression
+Rule 43    tipo -> TkBool
+Rule 44    tipo -> TkInt
+Rule 45    tipo -> TkArray TkOBracket expression TkSoForth expression TkCBracket
+Rule 46    empty -> <empty>
+Rule 47    expression -> term
+Rule 48    expression -> addingOperator term
+Rule 49    expression -> expression addingOperator term
+Rule 50    addingOperator -> TkPlus
+Rule 51    addingOperator -> TkMinus
+Rule 52    term -> factor
+Rule 53    term -> term multiplyingOperator factor
+Rule 54    multiplyingOperator -> TkMult
+Rule 55    multiplyingOperator -> TkDiv
+Rule 56    factor -> TkId
+Rule 57    factor -> TkNum
+Rule 58    factor -> TkOpenPar expression TkClosePar
+Rule 59    factor -> TkMinus TkNum
+Rule 60    factor -> TkString
+
+Terminals, with rules where they appear
+
+TkAnd                : 17
+TkArray              : 45
+TkArrow              : 8 9 10 11
+TkAsig               : 36
+TkAtoi               : 
+TkBool               : 43
+TkCBlock             : 2
+TkCBracket           : 45
+TkClosePar           : 58
+TkComma              : 33 33
+TkComment            : 
+TkConcat             : 
+TkDeclare            : 30
+TkDiv                : 55
+TkDo                 : 
+TkEqual              : 24
+TkFalse              : 
+TkFi                 : 8 9
+TkFor                : 
+TkGeq                : 23
+TkGreater            : 21
+TkGuard              : 10 11
+TkId                 : 33 34 36 38 56
+TkIf                 : 8 9
+TkIn                 : 
+TkInt                : 44
+TkLeq                : 22
+TkLess               : 20
+TkMax                : 
+TkMin                : 
+TkMinus              : 51 59
+TkMod                : 
+TkMult               : 54
+TkNEqual             : 25
+TkNot                : 
+TkNum                : 57 59
+TkOBlock             : 2
+TkOBracket           : 45
+TkOd                 : 
+TkOpenPar            : 58
+TkOr                 : 18
+TkPlus               : 50
+TkPrint              : 40
+TkPrintln            : 42
+TkRead               : 38
+TkRof                : 
+TkSemicolon          : 6 31
+TkSize               : 
+TkSoForth            : 45
+TkString             : 60
+TkTo                 : 
+TkTrue               : 
+TkTwoPoints          : 34
+error                : 
+
+Nonterminals, with rules where they appear
+
+addingOperator       : 48 49
+asignacion           : 35
+asignacionVariables  : 26
+bloque               : 1 8 10
+casoInstrucciones    : 3 4 6
+condicion            : 8 9 10 11 15 16
+declaracion          : 31 32 33
+declaracionSemiColon : 30 31
+declaracionVariables : 4
+empty                : 12
+expression           : 19 36 40 42 45 45 49 58
+factor               : 52 53
+instruccionIf        : 7
+listaInstrucciones   : 5 6
+multiplyingOperator  : 53
+operadorBool         : 15 16
+print                : 39
+printExpression      : 9 11 28
+println              : 41
+printlnExpression    : 29
+program              : 0
+read                 : 37
+readVariables        : 27
+relation             : 14 16
+t                    : 2
+term                 : 47 48 49 53
+tipo                 : 33 34
+tipoExpresion        : 13 14 14 15 16 16
+variasGuardias       : 8 9 10 11
+
+Parsing method: LALR
+
+state 0
+
+    (0) S' -> . program
+    (1) program -> . bloque
+    (2) bloque -> . TkOBlock t TkCBlock
+
+    TkOBlock        shift and go to state 3
+
+    bloque                         shift and go to state 1
+    program                        shift and go to state 2
+
+state 1
+
+    (1) program -> bloque .
+
+    $end            reduce using rule 1 (program -> bloque .)
+
+
+state 2
+
+    (0) S' -> program .
+
+
+
+state 3
+
+    (2) bloque -> TkOBlock . t TkCBlock
+    (3) t -> . casoInstrucciones
+    (4) t -> . declaracionVariables casoInstrucciones
+    (5) casoInstrucciones -> . listaInstrucciones
+    (6) casoInstrucciones -> . casoInstrucciones TkSemicolon listaInstrucciones
+    (30) declaracionVariables -> . TkDeclare declaracionSemiColon
+    (7) listaInstrucciones -> . instruccionIf
+    (26) listaInstrucciones -> . asignacionVariables
+    (27) listaInstrucciones -> . readVariables
+    (28) listaInstrucciones -> . printExpression
+    (29) listaInstrucciones -> . printlnExpression
+    (8) instruccionIf -> . TkIf condicion TkArrow bloque variasGuardias TkFi
+    (9) instruccionIf -> . TkIf condicion TkArrow printExpression variasGuardias TkFi
+    (35) asignacionVariables -> . asignacion
+    (37) readVariables -> . read
+    (39) printExpression -> . print
+    (41) printlnExpression -> . println
+    (36) asignacion -> . TkId TkAsig expression
+    (38) read -> . TkRead TkId
+    (40) print -> . TkPrint expression
+    (42) println -> . TkPrintln expression
+
+    TkDeclare       shift and go to state 20
+    TkIf            shift and go to state 7
+    TkId            shift and go to state 12
+    TkRead          shift and go to state 15
+    TkPrint         shift and go to state 17
+    TkPrintln       shift and go to state 11
+
+    asignacion                     shift and go to state 4
+    print                          shift and go to state 5
+    asignacionVariables            shift and go to state 16
+    readVariables                  shift and go to state 6
+    instruccionIf                  shift and go to state 8
+    println                        shift and go to state 18
+    printExpression                shift and go to state 19
+    printlnExpression              shift and go to state 9
+    read                           shift and go to state 10
+    t                              shift and go to state 14
+    listaInstrucciones             shift and go to state 13
+    declaracionVariables           shift and go to state 21
+    casoInstrucciones              shift and go to state 22
+
+state 4
+
+    (35) asignacionVariables -> asignacion .
+
+    TkSemicolon     reduce using rule 35 (asignacionVariables -> asignacion .)
+    TkCBlock        reduce using rule 35 (asignacionVariables -> asignacion .)
+
+
+state 5
+
+    (39) printExpression -> print .
+
+    TkGuard         reduce using rule 39 (printExpression -> print .)
+    TkFi            reduce using rule 39 (printExpression -> print .)
+    TkSemicolon     reduce using rule 39 (printExpression -> print .)
+    TkCBlock        reduce using rule 39 (printExpression -> print .)
+
+
+state 6
+
+    (27) listaInstrucciones -> readVariables .
+
+    TkSemicolon     reduce using rule 27 (listaInstrucciones -> readVariables .)
+    TkCBlock        reduce using rule 27 (listaInstrucciones -> readVariables .)
+
+
+state 7
+
+    (8) instruccionIf -> TkIf . condicion TkArrow bloque variasGuardias TkFi
+    (9) instruccionIf -> TkIf . condicion TkArrow printExpression variasGuardias TkFi
+    (13) condicion -> . tipoExpresion
+    (14) condicion -> . tipoExpresion relation tipoExpresion
+    (15) condicion -> . condicion operadorBool tipoExpresion
+    (16) condicion -> . condicion operadorBool tipoExpresion relation tipoExpresion
+    (19) tipoExpresion -> . expression
+    (47) expression -> . term
+    (48) expression -> . addingOperator term
+    (49) expression -> . expression addingOperator term
+    (52) term -> . factor
+    (53) term -> . term multiplyingOperator factor
+    (50) addingOperator -> . TkPlus
+    (51) addingOperator -> . TkMinus
+    (56) factor -> . TkId
+    (57) factor -> . TkNum
+    (58) factor -> . TkOpenPar expression TkClosePar
+    (59) factor -> . TkMinus TkNum
+    (60) factor -> . TkString
+
+    TkPlus          shift and go to state 34
+    TkMinus         shift and go to state 23
+    TkId            shift and go to state 29
+    TkNum           shift and go to state 25
+    TkOpenPar       shift and go to state 32
+    TkString        shift and go to state 31
+
+    addingOperator                 shift and go to state 24
+    term                           shift and go to state 26
+    factor                         shift and go to state 27
+    condicion                      shift and go to state 33
+    tipoExpresion                  shift and go to state 28
+    expression                     shift and go to state 30
+
+state 8
+
+    (7) listaInstrucciones -> instruccionIf .
+
+    TkSemicolon     reduce using rule 7 (listaInstrucciones -> instruccionIf .)
+    TkCBlock        reduce using rule 7 (listaInstrucciones -> instruccionIf .)
+
+
+state 9
+
+    (29) listaInstrucciones -> printlnExpression .
+
+    TkSemicolon     reduce using rule 29 (listaInstrucciones -> printlnExpression .)
+    TkCBlock        reduce using rule 29 (listaInstrucciones -> printlnExpression .)
+
+
+state 10
+
+    (37) readVariables -> read .
+
+    TkSemicolon     reduce using rule 37 (readVariables -> read .)
+    TkCBlock        reduce using rule 37 (readVariables -> read .)
+
+
+state 11
+
+    (42) println -> TkPrintln . expression
+    (47) expression -> . term
+    (48) expression -> . addingOperator term
+    (49) expression -> . expression addingOperator term
+    (52) term -> . factor
+    (53) term -> . term multiplyingOperator factor
+    (50) addingOperator -> . TkPlus
+    (51) addingOperator -> . TkMinus
+    (56) factor -> . TkId
+    (57) factor -> . TkNum
+    (58) factor -> . TkOpenPar expression TkClosePar
+    (59) factor -> . TkMinus TkNum
+    (60) factor -> . TkString
+
+    TkPlus          shift and go to state 34
+    TkMinus         shift and go to state 23
+    TkId            shift and go to state 29
+    TkNum           shift and go to state 25
+    TkOpenPar       shift and go to state 32
+    TkString        shift and go to state 31
+
+    expression                     shift and go to state 35
+    factor                         shift and go to state 27
+    term                           shift and go to state 26
+    addingOperator                 shift and go to state 24
+
+state 12
+
+    (36) asignacion -> TkId . TkAsig expression
+
+    TkAsig          shift and go to state 36
+
+
+state 13
+
+    (5) casoInstrucciones -> listaInstrucciones .
+
+    TkSemicolon     reduce using rule 5 (casoInstrucciones -> listaInstrucciones .)
+    TkCBlock        reduce using rule 5 (casoInstrucciones -> listaInstrucciones .)
+
+
+state 14
+
+    (2) bloque -> TkOBlock t . TkCBlock
+
+    TkCBlock        shift and go to state 37
+
+
+state 15
+
+    (38) read -> TkRead . TkId
+
+    TkId            shift and go to state 38
+
+
+state 16
+
+    (26) listaInstrucciones -> asignacionVariables .
+
+    TkSemicolon     reduce using rule 26 (listaInstrucciones -> asignacionVariables .)
+    TkCBlock        reduce using rule 26 (listaInstrucciones -> asignacionVariables .)
+
+
+state 17
+
+    (40) print -> TkPrint . expression
+    (47) expression -> . term
+    (48) expression -> . addingOperator term
+    (49) expression -> . expression addingOperator term
+    (52) term -> . factor
+    (53) term -> . term multiplyingOperator factor
+    (50) addingOperator -> . TkPlus
+    (51) addingOperator -> . TkMinus
+    (56) factor -> . TkId
+    (57) factor -> . TkNum
+    (58) factor -> . TkOpenPar expression TkClosePar
+    (59) factor -> . TkMinus TkNum
+    (60) factor -> . TkString
+
+    TkPlus          shift and go to state 34
+    TkMinus         shift and go to state 23
+    TkId            shift and go to state 29
+    TkNum           shift and go to state 25
+    TkOpenPar       shift and go to state 32
+    TkString        shift and go to state 31
+
+    expression                     shift and go to state 39
+    factor                         shift and go to state 27
+    term                           shift and go to state 26
+    addingOperator                 shift and go to state 24
+
+state 18
+
+    (41) printlnExpression -> println .
+
+    TkSemicolon     reduce using rule 41 (printlnExpression -> println .)
+    TkCBlock        reduce using rule 41 (printlnExpression -> println .)
+
+
+state 19
+
+    (28) listaInstrucciones -> printExpression .
+
+    TkSemicolon     reduce using rule 28 (listaInstrucciones -> printExpression .)
+    TkCBlock        reduce using rule 28 (listaInstrucciones -> printExpression .)
+
+
+state 20
+
+    (30) declaracionVariables -> TkDeclare . declaracionSemiColon
+    (31) declaracionSemiColon -> . declaracionSemiColon TkSemicolon declaracion
+    (32) declaracionSemiColon -> . declaracion
+    (33) declaracion -> . TkId TkComma declaracion TkComma tipo
+    (34) declaracion -> . TkId TkTwoPoints tipo
+
+    TkId            shift and go to state 42
+
+    declaracionSemiColon           shift and go to state 40
+    declaracion                    shift and go to state 41
+
+state 21
+
+    (4) t -> declaracionVariables . casoInstrucciones
+    (5) casoInstrucciones -> . listaInstrucciones
+    (6) casoInstrucciones -> . casoInstrucciones TkSemicolon listaInstrucciones
+    (7) listaInstrucciones -> . instruccionIf
+    (26) listaInstrucciones -> . asignacionVariables
+    (27) listaInstrucciones -> . readVariables
+    (28) listaInstrucciones -> . printExpression
+    (29) listaInstrucciones -> . printlnExpression
+    (8) instruccionIf -> . TkIf condicion TkArrow bloque variasGuardias TkFi
+    (9) instruccionIf -> . TkIf condicion TkArrow printExpression variasGuardias TkFi
+    (35) asignacionVariables -> . asignacion
+    (37) readVariables -> . read
+    (39) printExpression -> . print
+    (41) printlnExpression -> . println
+    (36) asignacion -> . TkId TkAsig expression
+    (38) read -> . TkRead TkId
+    (40) print -> . TkPrint expression
+    (42) println -> . TkPrintln expression
+
+    TkIf            shift and go to state 7
+    TkId            shift and go to state 12
+    TkRead          shift and go to state 15
+    TkPrint         shift and go to state 17
+    TkPrintln       shift and go to state 11
+
+    asignacion                     shift and go to state 4
+    print                          shift and go to state 5
+    asignacionVariables            shift and go to state 16
+    readVariables                  shift and go to state 6
+    instruccionIf                  shift and go to state 8
+    println                        shift and go to state 18
+    printExpression                shift and go to state 19
+    printlnExpression              shift and go to state 9
+    listaInstrucciones             shift and go to state 13
+    read                           shift and go to state 10
+    casoInstrucciones              shift and go to state 43
+
+state 22
+
+    (3) t -> casoInstrucciones .
+    (6) casoInstrucciones -> casoInstrucciones . TkSemicolon listaInstrucciones
+
+    TkCBlock        reduce using rule 3 (t -> casoInstrucciones .)
+    TkSemicolon     shift and go to state 44
+
+
+state 23
+
+    (51) addingOperator -> TkMinus .
+    (59) factor -> TkMinus . TkNum
+
+  ! shift/reduce conflict for TkNum resolved as shift
+    TkId            reduce using rule 51 (addingOperator -> TkMinus .)
+    TkOpenPar       reduce using rule 51 (addingOperator -> TkMinus .)
+    TkMinus         reduce using rule 51 (addingOperator -> TkMinus .)
+    TkString        reduce using rule 51 (addingOperator -> TkMinus .)
+    TkNum           shift and go to state 45
+
+  ! TkNum           [ reduce using rule 51 (addingOperator -> TkMinus .) ]
+
+
+state 24
+
+    (48) expression -> addingOperator . term
+    (52) term -> . factor
+    (53) term -> . term multiplyingOperator factor
+    (56) factor -> . TkId
+    (57) factor -> . TkNum
+    (58) factor -> . TkOpenPar expression TkClosePar
+    (59) factor -> . TkMinus TkNum
+    (60) factor -> . TkString
+
+    TkId            shift and go to state 29
+    TkNum           shift and go to state 25
+    TkOpenPar       shift and go to state 32
+    TkMinus         shift and go to state 46
+    TkString        shift and go to state 31
+
+    factor                         shift and go to state 27
+    term                           shift and go to state 47
+
+state 25
+
+    (57) factor -> TkNum .
+
+    TkMult          reduce using rule 57 (factor -> TkNum .)
+    TkDiv           reduce using rule 57 (factor -> TkNum .)
+    TkPlus          reduce using rule 57 (factor -> TkNum .)
+    TkMinus         reduce using rule 57 (factor -> TkNum .)
+    TkSemicolon     reduce using rule 57 (factor -> TkNum .)
+    TkCBlock        reduce using rule 57 (factor -> TkNum .)
+    TkLess          reduce using rule 57 (factor -> TkNum .)
+    TkGreater       reduce using rule 57 (factor -> TkNum .)
+    TkLeq           reduce using rule 57 (factor -> TkNum .)
+    TkGeq           reduce using rule 57 (factor -> TkNum .)
+    TkEqual         reduce using rule 57 (factor -> TkNum .)
+    TkNEqual        reduce using rule 57 (factor -> TkNum .)
+    TkArrow         reduce using rule 57 (factor -> TkNum .)
+    TkAnd           reduce using rule 57 (factor -> TkNum .)
+    TkOr            reduce using rule 57 (factor -> TkNum .)
+    TkGuard         reduce using rule 57 (factor -> TkNum .)
+    TkFi            reduce using rule 57 (factor -> TkNum .)
+    TkCBracket      reduce using rule 57 (factor -> TkNum .)
+    TkSoForth       reduce using rule 57 (factor -> TkNum .)
+    TkClosePar      reduce using rule 57 (factor -> TkNum .)
+
+
+state 26
+
+    (47) expression -> term .
+    (53) term -> term . multiplyingOperator factor
+    (54) multiplyingOperator -> . TkMult
+    (55) multiplyingOperator -> . TkDiv
+
+    TkClosePar      reduce using rule 47 (expression -> term .)
+    TkPlus          reduce using rule 47 (expression -> term .)
+    TkMinus         reduce using rule 47 (expression -> term .)
+    TkArrow         reduce using rule 47 (expression -> term .)
+    TkAnd           reduce using rule 47 (expression -> term .)
+    TkOr            reduce using rule 47 (expression -> term .)
+    TkSemicolon     reduce using rule 47 (expression -> term .)
+    TkCBlock        reduce using rule 47 (expression -> term .)
+    TkGuard         reduce using rule 47 (expression -> term .)
+    TkFi            reduce using rule 47 (expression -> term .)
+    TkLess          reduce using rule 47 (expression -> term .)
+    TkGreater       reduce using rule 47 (expression -> term .)
+    TkLeq           reduce using rule 47 (expression -> term .)
+    TkGeq           reduce using rule 47 (expression -> term .)
+    TkEqual         reduce using rule 47 (expression -> term .)
+    TkNEqual        reduce using rule 47 (expression -> term .)
+    TkSoForth       reduce using rule 47 (expression -> term .)
+    TkCBracket      reduce using rule 47 (expression -> term .)
+    TkMult          shift and go to state 48
+    TkDiv           shift and go to state 50
+
+    multiplyingOperator            shift and go to state 49
+
+state 27
+
+    (52) term -> factor .
+
+    TkMult          reduce using rule 52 (term -> factor .)
+    TkDiv           reduce using rule 52 (term -> factor .)
+    TkPlus          reduce using rule 52 (term -> factor .)
+    TkMinus         reduce using rule 52 (term -> factor .)
+    TkLess          reduce using rule 52 (term -> factor .)
+    TkGreater       reduce using rule 52 (term -> factor .)
+    TkLeq           reduce using rule 52 (term -> factor .)
+    TkGeq           reduce using rule 52 (term -> factor .)
+    TkEqual         reduce using rule 52 (term -> factor .)
+    TkNEqual        reduce using rule 52 (term -> factor .)
+    TkArrow         reduce using rule 52 (term -> factor .)
+    TkAnd           reduce using rule 52 (term -> factor .)
+    TkOr            reduce using rule 52 (term -> factor .)
+    TkSemicolon     reduce using rule 52 (term -> factor .)
+    TkCBlock        reduce using rule 52 (term -> factor .)
+    TkGuard         reduce using rule 52 (term -> factor .)
+    TkFi            reduce using rule 52 (term -> factor .)
+    TkClosePar      reduce using rule 52 (term -> factor .)
+    TkSoForth       reduce using rule 52 (term -> factor .)
+    TkCBracket      reduce using rule 52 (term -> factor .)
+
+
+state 28
+
+    (13) condicion -> tipoExpresion .
+    (14) condicion -> tipoExpresion . relation tipoExpresion
+    (20) relation -> . TkLess
+    (21) relation -> . TkGreater
+    (22) relation -> . TkLeq
+    (23) relation -> . TkGeq
+    (24) relation -> . TkEqual
+    (25) relation -> . TkNEqual
+
+    TkArrow         reduce using rule 13 (condicion -> tipoExpresion .)
+    TkAnd           reduce using rule 13 (condicion -> tipoExpresion .)
+    TkOr            reduce using rule 13 (condicion -> tipoExpresion .)
+    TkLess          shift and go to state 56
+    TkGreater       shift and go to state 55
+    TkLeq           shift and go to state 54
+    TkGeq           shift and go to state 53
+    TkEqual         shift and go to state 52
+    TkNEqual        shift and go to state 51
+
+    relation                       shift and go to state 57
+
+state 29
+
+    (56) factor -> TkId .
+
+    TkMult          reduce using rule 56 (factor -> TkId .)
+    TkDiv           reduce using rule 56 (factor -> TkId .)
+    TkPlus          reduce using rule 56 (factor -> TkId .)
+    TkMinus         reduce using rule 56 (factor -> TkId .)
+    TkSemicolon     reduce using rule 56 (factor -> TkId .)
+    TkCBlock        reduce using rule 56 (factor -> TkId .)
+    TkLess          reduce using rule 56 (factor -> TkId .)
+    TkGreater       reduce using rule 56 (factor -> TkId .)
+    TkLeq           reduce using rule 56 (factor -> TkId .)
+    TkGeq           reduce using rule 56 (factor -> TkId .)
+    TkEqual         reduce using rule 56 (factor -> TkId .)
+    TkNEqual        reduce using rule 56 (factor -> TkId .)
+    TkArrow         reduce using rule 56 (factor -> TkId .)
+    TkAnd           reduce using rule 56 (factor -> TkId .)
+    TkOr            reduce using rule 56 (factor -> TkId .)
+    TkGuard         reduce using rule 56 (factor -> TkId .)
+    TkFi            reduce using rule 56 (factor -> TkId .)
+    TkCBracket      reduce using rule 56 (factor -> TkId .)
+    TkSoForth       reduce using rule 56 (factor -> TkId .)
+    TkClosePar      reduce using rule 56 (factor -> TkId .)
+
+
+state 30
+
+    (19) tipoExpresion -> expression .
+    (49) expression -> expression . addingOperator term
+    (50) addingOperator -> . TkPlus
+    (51) addingOperator -> . TkMinus
+
+    TkLess          reduce using rule 19 (tipoExpresion -> expression .)
+    TkGreater       reduce using rule 19 (tipoExpresion -> expression .)
+    TkLeq           reduce using rule 19 (tipoExpresion -> expression .)
+    TkGeq           reduce using rule 19 (tipoExpresion -> expression .)
+    TkEqual         reduce using rule 19 (tipoExpresion -> expression .)
+    TkNEqual        reduce using rule 19 (tipoExpresion -> expression .)
+    TkArrow         reduce using rule 19 (tipoExpresion -> expression .)
+    TkAnd           reduce using rule 19 (tipoExpresion -> expression .)
+    TkOr            reduce using rule 19 (tipoExpresion -> expression .)
+    TkPlus          shift and go to state 34
+    TkMinus         shift and go to state 58
+
+    addingOperator                 shift and go to state 59
+
+state 31
+
+    (60) factor -> TkString .
+
+    TkMult          reduce using rule 60 (factor -> TkString .)
+    TkDiv           reduce using rule 60 (factor -> TkString .)
+    TkPlus          reduce using rule 60 (factor -> TkString .)
+    TkMinus         reduce using rule 60 (factor -> TkString .)
+    TkSemicolon     reduce using rule 60 (factor -> TkString .)
+    TkCBlock        reduce using rule 60 (factor -> TkString .)
+    TkLess          reduce using rule 60 (factor -> TkString .)
+    TkGreater       reduce using rule 60 (factor -> TkString .)
+    TkLeq           reduce using rule 60 (factor -> TkString .)
+    TkGeq           reduce using rule 60 (factor -> TkString .)
+    TkEqual         reduce using rule 60 (factor -> TkString .)
+    TkNEqual        reduce using rule 60 (factor -> TkString .)
+    TkArrow         reduce using rule 60 (factor -> TkString .)
+    TkAnd           reduce using rule 60 (factor -> TkString .)
+    TkOr            reduce using rule 60 (factor -> TkString .)
+    TkGuard         reduce using rule 60 (factor -> TkString .)
+    TkFi            reduce using rule 60 (factor -> TkString .)
+    TkCBracket      reduce using rule 60 (factor -> TkString .)
+    TkSoForth       reduce using rule 60 (factor -> TkString .)
+    TkClosePar      reduce using rule 60 (factor -> TkString .)
+
+
+state 32
+
+    (58) factor -> TkOpenPar . expression TkClosePar
+    (47) expression -> . term
+    (48) expression -> . addingOperator term
+    (49) expression -> . expression addingOperator term
+    (52) term -> . factor
+    (53) term -> . term multiplyingOperator factor
+    (50) addingOperator -> . TkPlus
+    (51) addingOperator -> . TkMinus
+    (56) factor -> . TkId
+    (57) factor -> . TkNum
+    (58) factor -> . TkOpenPar expression TkClosePar
+    (59) factor -> . TkMinus TkNum
+    (60) factor -> . TkString
+
+    TkPlus          shift and go to state 34
+    TkMinus         shift and go to state 23
+    TkId            shift and go to state 29
+    TkNum           shift and go to state 25
+    TkOpenPar       shift and go to state 32
+    TkString        shift and go to state 31
+
+    expression                     shift and go to state 60
+    factor                         shift and go to state 27
+    term                           shift and go to state 26
+    addingOperator                 shift and go to state 24
+
+state 33
+
+    (8) instruccionIf -> TkIf condicion . TkArrow bloque variasGuardias TkFi
+    (9) instruccionIf -> TkIf condicion . TkArrow printExpression variasGuardias TkFi
+    (15) condicion -> condicion . operadorBool tipoExpresion
+    (16) condicion -> condicion . operadorBool tipoExpresion relation tipoExpresion
+    (17) operadorBool -> . TkAnd
+    (18) operadorBool -> . TkOr
+
+    TkArrow         shift and go to state 62
+    TkAnd           shift and go to state 64
+    TkOr            shift and go to state 61
+
+    operadorBool                   shift and go to state 63
+
+state 34
+
+    (50) addingOperator -> TkPlus .
+
+    TkId            reduce using rule 50 (addingOperator -> TkPlus .)
+    TkNum           reduce using rule 50 (addingOperator -> TkPlus .)
+    TkOpenPar       reduce using rule 50 (addingOperator -> TkPlus .)
+    TkMinus         reduce using rule 50 (addingOperator -> TkPlus .)
+    TkString        reduce using rule 50 (addingOperator -> TkPlus .)
+
+
+state 35
+
+    (42) println -> TkPrintln expression .
+    (49) expression -> expression . addingOperator term
+    (50) addingOperator -> . TkPlus
+    (51) addingOperator -> . TkMinus
+
+    TkSemicolon     reduce using rule 42 (println -> TkPrintln expression .)
+    TkCBlock        reduce using rule 42 (println -> TkPrintln expression .)
+    TkPlus          shift and go to state 34
+    TkMinus         shift and go to state 58
+
+    addingOperator                 shift and go to state 59
+
+state 36
+
+    (36) asignacion -> TkId TkAsig . expression
+    (47) expression -> . term
+    (48) expression -> . addingOperator term
+    (49) expression -> . expression addingOperator term
+    (52) term -> . factor
+    (53) term -> . term multiplyingOperator factor
+    (50) addingOperator -> . TkPlus
+    (51) addingOperator -> . TkMinus
+    (56) factor -> . TkId
+    (57) factor -> . TkNum
+    (58) factor -> . TkOpenPar expression TkClosePar
+    (59) factor -> . TkMinus TkNum
+    (60) factor -> . TkString
+
+    TkPlus          shift and go to state 34
+    TkMinus         shift and go to state 23
+    TkId            shift and go to state 29
+    TkNum           shift and go to state 25
+    TkOpenPar       shift and go to state 32
+    TkString        shift and go to state 31
+
+    expression                     shift and go to state 65
+    factor                         shift and go to state 27
+    term                           shift and go to state 26
+    addingOperator                 shift and go to state 24
+
+state 37
+
+    (2) bloque -> TkOBlock t TkCBlock .
+
+    TkGuard         reduce using rule 2 (bloque -> TkOBlock t TkCBlock .)
+    TkFi            reduce using rule 2 (bloque -> TkOBlock t TkCBlock .)
+    $end            reduce using rule 2 (bloque -> TkOBlock t TkCBlock .)
+
+
+state 38
+
+    (38) read -> TkRead TkId .
+
+    TkSemicolon     reduce using rule 38 (read -> TkRead TkId .)
+    TkCBlock        reduce using rule 38 (read -> TkRead TkId .)
+
+
+state 39
+
+    (40) print -> TkPrint expression .
+    (49) expression -> expression . addingOperator term
+    (50) addingOperator -> . TkPlus
+    (51) addingOperator -> . TkMinus
+
+    TkGuard         reduce using rule 40 (print -> TkPrint expression .)
+    TkFi            reduce using rule 40 (print -> TkPrint expression .)
+    TkSemicolon     reduce using rule 40 (print -> TkPrint expression .)
+    TkCBlock        reduce using rule 40 (print -> TkPrint expression .)
+    TkPlus          shift and go to state 34
+    TkMinus         shift and go to state 58
+
+    addingOperator                 shift and go to state 59
+
+state 40
+
+    (30) declaracionVariables -> TkDeclare declaracionSemiColon .
+    (31) declaracionSemiColon -> declaracionSemiColon . TkSemicolon declaracion
+
+    TkIf            reduce using rule 30 (declaracionVariables -> TkDeclare declaracionSemiColon .)
+    TkId            reduce using rule 30 (declaracionVariables -> TkDeclare declaracionSemiColon .)
+    TkRead          reduce using rule 30 (declaracionVariables -> TkDeclare declaracionSemiColon .)
+    TkPrint         reduce using rule 30 (declaracionVariables -> TkDeclare declaracionSemiColon .)
+    TkPrintln       reduce using rule 30 (declaracionVariables -> TkDeclare declaracionSemiColon .)
+    TkSemicolon     shift and go to state 66
+
+
+state 41
+
+    (32) declaracionSemiColon -> declaracion .
+
+    TkSemicolon     reduce using rule 32 (declaracionSemiColon -> declaracion .)
+    TkIf            reduce using rule 32 (declaracionSemiColon -> declaracion .)
+    TkId            reduce using rule 32 (declaracionSemiColon -> declaracion .)
+    TkRead          reduce using rule 32 (declaracionSemiColon -> declaracion .)
+    TkPrint         reduce using rule 32 (declaracionSemiColon -> declaracion .)
+    TkPrintln       reduce using rule 32 (declaracionSemiColon -> declaracion .)
+
+
+state 42
+
+    (33) declaracion -> TkId . TkComma declaracion TkComma tipo
+    (34) declaracion -> TkId . TkTwoPoints tipo
+
+    TkComma         shift and go to state 68
+    TkTwoPoints     shift and go to state 67
+
+
+state 43
+
+    (4) t -> declaracionVariables casoInstrucciones .
+    (6) casoInstrucciones -> casoInstrucciones . TkSemicolon listaInstrucciones
+
+    TkCBlock        reduce using rule 4 (t -> declaracionVariables casoInstrucciones .)
+    TkSemicolon     shift and go to state 44
+
+
+state 44
+
+    (6) casoInstrucciones -> casoInstrucciones TkSemicolon . listaInstrucciones
+    (7) listaInstrucciones -> . instruccionIf
+    (26) listaInstrucciones -> . asignacionVariables
+    (27) listaInstrucciones -> . readVariables
+    (28) listaInstrucciones -> . printExpression
+    (29) listaInstrucciones -> . printlnExpression
+    (8) instruccionIf -> . TkIf condicion TkArrow bloque variasGuardias TkFi
+    (9) instruccionIf -> . TkIf condicion TkArrow printExpression variasGuardias TkFi
+    (35) asignacionVariables -> . asignacion
+    (37) readVariables -> . read
+    (39) printExpression -> . print
+    (41) printlnExpression -> . println
+    (36) asignacion -> . TkId TkAsig expression
+    (38) read -> . TkRead TkId
+    (40) print -> . TkPrint expression
+    (42) println -> . TkPrintln expression
+
+    TkIf            shift and go to state 7
+    TkId            shift and go to state 12
+    TkRead          shift and go to state 15
+    TkPrint         shift and go to state 17
+    TkPrintln       shift and go to state 11
+
+    asignacion                     shift and go to state 4
+    print                          shift and go to state 5
+    asignacionVariables            shift and go to state 16
+    readVariables                  shift and go to state 6
+    instruccionIf                  shift and go to state 8
+    println                        shift and go to state 18
+    printExpression                shift and go to state 19
+    printlnExpression              shift and go to state 9
+    listaInstrucciones             shift and go to state 69
+    read                           shift and go to state 10
+
+state 45
+
+    (59) factor -> TkMinus TkNum .
+
+    TkMult          reduce using rule 59 (factor -> TkMinus TkNum .)
+    TkDiv           reduce using rule 59 (factor -> TkMinus TkNum .)
+    TkPlus          reduce using rule 59 (factor -> TkMinus TkNum .)
+    TkMinus         reduce using rule 59 (factor -> TkMinus TkNum .)
+    TkSemicolon     reduce using rule 59 (factor -> TkMinus TkNum .)
+    TkCBlock        reduce using rule 59 (factor -> TkMinus TkNum .)
+    TkLess          reduce using rule 59 (factor -> TkMinus TkNum .)
+    TkGreater       reduce using rule 59 (factor -> TkMinus TkNum .)
+    TkLeq           reduce using rule 59 (factor -> TkMinus TkNum .)
+    TkGeq           reduce using rule 59 (factor -> TkMinus TkNum .)
+    TkEqual         reduce using rule 59 (factor -> TkMinus TkNum .)
+    TkNEqual        reduce using rule 59 (factor -> TkMinus TkNum .)
+    TkArrow         reduce using rule 59 (factor -> TkMinus TkNum .)
+    TkAnd           reduce using rule 59 (factor -> TkMinus TkNum .)
+    TkOr            reduce using rule 59 (factor -> TkMinus TkNum .)
+    TkGuard         reduce using rule 59 (factor -> TkMinus TkNum .)
+    TkFi            reduce using rule 59 (factor -> TkMinus TkNum .)
+    TkCBracket      reduce using rule 59 (factor -> TkMinus TkNum .)
+    TkSoForth       reduce using rule 59 (factor -> TkMinus TkNum .)
+    TkClosePar      reduce using rule 59 (factor -> TkMinus TkNum .)
+
+
+state 46
+
+    (59) factor -> TkMinus . TkNum
+
+    TkNum           shift and go to state 45
+
+
+state 47
+
+    (48) expression -> addingOperator term .
+    (53) term -> term . multiplyingOperator factor
+    (54) multiplyingOperator -> . TkMult
+    (55) multiplyingOperator -> . TkDiv
+
+    TkClosePar      reduce using rule 48 (expression -> addingOperator term .)
+    TkPlus          reduce using rule 48 (expression -> addingOperator term .)
+    TkMinus         reduce using rule 48 (expression -> addingOperator term .)
+    TkArrow         reduce using rule 48 (expression -> addingOperator term .)
+    TkAnd           reduce using rule 48 (expression -> addingOperator term .)
+    TkOr            reduce using rule 48 (expression -> addingOperator term .)
+    TkSemicolon     reduce using rule 48 (expression -> addingOperator term .)
+    TkCBlock        reduce using rule 48 (expression -> addingOperator term .)
+    TkGuard         reduce using rule 48 (expression -> addingOperator term .)
+    TkFi            reduce using rule 48 (expression -> addingOperator term .)
+    TkLess          reduce using rule 48 (expression -> addingOperator term .)
+    TkGreater       reduce using rule 48 (expression -> addingOperator term .)
+    TkLeq           reduce using rule 48 (expression -> addingOperator term .)
+    TkGeq           reduce using rule 48 (expression -> addingOperator term .)
+    TkEqual         reduce using rule 48 (expression -> addingOperator term .)
+    TkNEqual        reduce using rule 48 (expression -> addingOperator term .)
+    TkSoForth       reduce using rule 48 (expression -> addingOperator term .)
+    TkCBracket      reduce using rule 48 (expression -> addingOperator term .)
+    TkMult          shift and go to state 48
+    TkDiv           shift and go to state 50
+
+    multiplyingOperator            shift and go to state 49
+
+state 48
+
+    (54) multiplyingOperator -> TkMult .
+
+    TkId            reduce using rule 54 (multiplyingOperator -> TkMult .)
+    TkNum           reduce using rule 54 (multiplyingOperator -> TkMult .)
+    TkOpenPar       reduce using rule 54 (multiplyingOperator -> TkMult .)
+    TkMinus         reduce using rule 54 (multiplyingOperator -> TkMult .)
+    TkString        reduce using rule 54 (multiplyingOperator -> TkMult .)
+
+
+state 49
+
+    (53) term -> term multiplyingOperator . factor
+    (56) factor -> . TkId
+    (57) factor -> . TkNum
+    (58) factor -> . TkOpenPar expression TkClosePar
+    (59) factor -> . TkMinus TkNum
+    (60) factor -> . TkString
+
+    TkId            shift and go to state 29
+    TkNum           shift and go to state 25
+    TkOpenPar       shift and go to state 32
+    TkMinus         shift and go to state 46
+    TkString        shift and go to state 31
+
+    factor                         shift and go to state 70
+
+state 50
+
+    (55) multiplyingOperator -> TkDiv .
+
+    TkId            reduce using rule 55 (multiplyingOperator -> TkDiv .)
+    TkNum           reduce using rule 55 (multiplyingOperator -> TkDiv .)
+    TkOpenPar       reduce using rule 55 (multiplyingOperator -> TkDiv .)
+    TkMinus         reduce using rule 55 (multiplyingOperator -> TkDiv .)
+    TkString        reduce using rule 55 (multiplyingOperator -> TkDiv .)
+
+
+state 51
+
+    (25) relation -> TkNEqual .
+
+    TkPlus          reduce using rule 25 (relation -> TkNEqual .)
+    TkMinus         reduce using rule 25 (relation -> TkNEqual .)
+    TkId            reduce using rule 25 (relation -> TkNEqual .)
+    TkNum           reduce using rule 25 (relation -> TkNEqual .)
+    TkOpenPar       reduce using rule 25 (relation -> TkNEqual .)
+    TkString        reduce using rule 25 (relation -> TkNEqual .)
+
+
+state 52
+
+    (24) relation -> TkEqual .
+
+    TkPlus          reduce using rule 24 (relation -> TkEqual .)
+    TkMinus         reduce using rule 24 (relation -> TkEqual .)
+    TkId            reduce using rule 24 (relation -> TkEqual .)
+    TkNum           reduce using rule 24 (relation -> TkEqual .)
+    TkOpenPar       reduce using rule 24 (relation -> TkEqual .)
+    TkString        reduce using rule 24 (relation -> TkEqual .)
+
+
+state 53
+
+    (23) relation -> TkGeq .
+
+    TkPlus          reduce using rule 23 (relation -> TkGeq .)
+    TkMinus         reduce using rule 23 (relation -> TkGeq .)
+    TkId            reduce using rule 23 (relation -> TkGeq .)
+    TkNum           reduce using rule 23 (relation -> TkGeq .)
+    TkOpenPar       reduce using rule 23 (relation -> TkGeq .)
+    TkString        reduce using rule 23 (relation -> TkGeq .)
+
+
+state 54
+
+    (22) relation -> TkLeq .
+
+    TkPlus          reduce using rule 22 (relation -> TkLeq .)
+    TkMinus         reduce using rule 22 (relation -> TkLeq .)
+    TkId            reduce using rule 22 (relation -> TkLeq .)
+    TkNum           reduce using rule 22 (relation -> TkLeq .)
+    TkOpenPar       reduce using rule 22 (relation -> TkLeq .)
+    TkString        reduce using rule 22 (relation -> TkLeq .)
+
+
+state 55
+
+    (21) relation -> TkGreater .
+
+    TkPlus          reduce using rule 21 (relation -> TkGreater .)
+    TkMinus         reduce using rule 21 (relation -> TkGreater .)
+    TkId            reduce using rule 21 (relation -> TkGreater .)
+    TkNum           reduce using rule 21 (relation -> TkGreater .)
+    TkOpenPar       reduce using rule 21 (relation -> TkGreater .)
+    TkString        reduce using rule 21 (relation -> TkGreater .)
+
+
+state 56
+
+    (20) relation -> TkLess .
+
+    TkPlus          reduce using rule 20 (relation -> TkLess .)
+    TkMinus         reduce using rule 20 (relation -> TkLess .)
+    TkId            reduce using rule 20 (relation -> TkLess .)
+    TkNum           reduce using rule 20 (relation -> TkLess .)
+    TkOpenPar       reduce using rule 20 (relation -> TkLess .)
+    TkString        reduce using rule 20 (relation -> TkLess .)
+
+
+state 57
+
+    (14) condicion -> tipoExpresion relation . tipoExpresion
+    (19) tipoExpresion -> . expression
+    (47) expression -> . term
+    (48) expression -> . addingOperator term
+    (49) expression -> . expression addingOperator term
+    (52) term -> . factor
+    (53) term -> . term multiplyingOperator factor
+    (50) addingOperator -> . TkPlus
+    (51) addingOperator -> . TkMinus
+    (56) factor -> . TkId
+    (57) factor -> . TkNum
+    (58) factor -> . TkOpenPar expression TkClosePar
+    (59) factor -> . TkMinus TkNum
+    (60) factor -> . TkString
+
+    TkPlus          shift and go to state 34
+    TkMinus         shift and go to state 23
+    TkId            shift and go to state 29
+    TkNum           shift and go to state 25
+    TkOpenPar       shift and go to state 32
+    TkString        shift and go to state 31
+
+    addingOperator                 shift and go to state 24
+    factor                         shift and go to state 27
+    tipoExpresion                  shift and go to state 71
+    expression                     shift and go to state 30
+    term                           shift and go to state 26
+
+state 58
+
+    (51) addingOperator -> TkMinus .
+
+    TkId            reduce using rule 51 (addingOperator -> TkMinus .)
+    TkNum           reduce using rule 51 (addingOperator -> TkMinus .)
+    TkOpenPar       reduce using rule 51 (addingOperator -> TkMinus .)
+    TkMinus         reduce using rule 51 (addingOperator -> TkMinus .)
+    TkString        reduce using rule 51 (addingOperator -> TkMinus .)
+
+
+state 59
+
+    (49) expression -> expression addingOperator . term
+    (52) term -> . factor
+    (53) term -> . term multiplyingOperator factor
+    (56) factor -> . TkId
+    (57) factor -> . TkNum
+    (58) factor -> . TkOpenPar expression TkClosePar
+    (59) factor -> . TkMinus TkNum
+    (60) factor -> . TkString
+
+    TkId            shift and go to state 29
+    TkNum           shift and go to state 25
+    TkOpenPar       shift and go to state 32
+    TkMinus         shift and go to state 46
+    TkString        shift and go to state 31
+
+    factor                         shift and go to state 27
+    term                           shift and go to state 72
+
+state 60
+
+    (58) factor -> TkOpenPar expression . TkClosePar
+    (49) expression -> expression . addingOperator term
+    (50) addingOperator -> . TkPlus
+    (51) addingOperator -> . TkMinus
+
+    TkClosePar      shift and go to state 73
+    TkPlus          shift and go to state 34
+    TkMinus         shift and go to state 58
+
+    addingOperator                 shift and go to state 59
+
+state 61
+
+    (18) operadorBool -> TkOr .
+
+    TkPlus          reduce using rule 18 (operadorBool -> TkOr .)
+    TkMinus         reduce using rule 18 (operadorBool -> TkOr .)
+    TkId            reduce using rule 18 (operadorBool -> TkOr .)
+    TkNum           reduce using rule 18 (operadorBool -> TkOr .)
+    TkOpenPar       reduce using rule 18 (operadorBool -> TkOr .)
+    TkString        reduce using rule 18 (operadorBool -> TkOr .)
+
+
+state 62
+
+    (8) instruccionIf -> TkIf condicion TkArrow . bloque variasGuardias TkFi
+    (9) instruccionIf -> TkIf condicion TkArrow . printExpression variasGuardias TkFi
+    (2) bloque -> . TkOBlock t TkCBlock
+    (39) printExpression -> . print
+    (40) print -> . TkPrint expression
+
+    TkOBlock        shift and go to state 3
+    TkPrint         shift and go to state 17
+
+    printExpression                shift and go to state 74
+    bloque                         shift and go to state 75
+    print                          shift and go to state 5
+
+state 63
+
+    (15) condicion -> condicion operadorBool . tipoExpresion
+    (16) condicion -> condicion operadorBool . tipoExpresion relation tipoExpresion
+    (19) tipoExpresion -> . expression
+    (47) expression -> . term
+    (48) expression -> . addingOperator term
+    (49) expression -> . expression addingOperator term
+    (52) term -> . factor
+    (53) term -> . term multiplyingOperator factor
+    (50) addingOperator -> . TkPlus
+    (51) addingOperator -> . TkMinus
+    (56) factor -> . TkId
+    (57) factor -> . TkNum
+    (58) factor -> . TkOpenPar expression TkClosePar
+    (59) factor -> . TkMinus TkNum
+    (60) factor -> . TkString
+
+    TkPlus          shift and go to state 34
+    TkMinus         shift and go to state 23
+    TkId            shift and go to state 29
+    TkNum           shift and go to state 25
+    TkOpenPar       shift and go to state 32
+    TkString        shift and go to state 31
+
+    addingOperator                 shift and go to state 24
+    tipoExpresion                  shift and go to state 76
+    expression                     shift and go to state 30
+    factor                         shift and go to state 27
+    term                           shift and go to state 26
+
+state 64
+
+    (17) operadorBool -> TkAnd .
+
+    TkPlus          reduce using rule 17 (operadorBool -> TkAnd .)
+    TkMinus         reduce using rule 17 (operadorBool -> TkAnd .)
+    TkId            reduce using rule 17 (operadorBool -> TkAnd .)
+    TkNum           reduce using rule 17 (operadorBool -> TkAnd .)
+    TkOpenPar       reduce using rule 17 (operadorBool -> TkAnd .)
+    TkString        reduce using rule 17 (operadorBool -> TkAnd .)
+
+
+state 65
+
+    (36) asignacion -> TkId TkAsig expression .
+    (49) expression -> expression . addingOperator term
+    (50) addingOperator -> . TkPlus
+    (51) addingOperator -> . TkMinus
+
+    TkSemicolon     reduce using rule 36 (asignacion -> TkId TkAsig expression .)
+    TkCBlock        reduce using rule 36 (asignacion -> TkId TkAsig expression .)
+    TkPlus          shift and go to state 34
+    TkMinus         shift and go to state 58
+
+    addingOperator                 shift and go to state 59
+
+state 66
+
+    (31) declaracionSemiColon -> declaracionSemiColon TkSemicolon . declaracion
+    (33) declaracion -> . TkId TkComma declaracion TkComma tipo
+    (34) declaracion -> . TkId TkTwoPoints tipo
+
+    TkId            shift and go to state 42
+
+    declaracion                    shift and go to state 77
+
+state 67
+
+    (34) declaracion -> TkId TkTwoPoints . tipo
+    (43) tipo -> . TkBool
+    (44) tipo -> . TkInt
+    (45) tipo -> . TkArray TkOBracket expression TkSoForth expression TkCBracket
+
+    TkBool          shift and go to state 80
+    TkInt           shift and go to state 78
+    TkArray         shift and go to state 81
+
+    tipo                           shift and go to state 79
+
+state 68
+
+    (33) declaracion -> TkId TkComma . declaracion TkComma tipo
+    (33) declaracion -> . TkId TkComma declaracion TkComma tipo
+    (34) declaracion -> . TkId TkTwoPoints tipo
+
+    TkId            shift and go to state 42
+
+    declaracion                    shift and go to state 82
+
+state 69
+
+    (6) casoInstrucciones -> casoInstrucciones TkSemicolon listaInstrucciones .
+
+    TkSemicolon     reduce using rule 6 (casoInstrucciones -> casoInstrucciones TkSemicolon listaInstrucciones .)
+    TkCBlock        reduce using rule 6 (casoInstrucciones -> casoInstrucciones TkSemicolon listaInstrucciones .)
+
+
+state 70
+
+    (53) term -> term multiplyingOperator factor .
+
+    TkMult          reduce using rule 53 (term -> term multiplyingOperator factor .)
+    TkDiv           reduce using rule 53 (term -> term multiplyingOperator factor .)
+    TkPlus          reduce using rule 53 (term -> term multiplyingOperator factor .)
+    TkMinus         reduce using rule 53 (term -> term multiplyingOperator factor .)
+    TkLess          reduce using rule 53 (term -> term multiplyingOperator factor .)
+    TkGreater       reduce using rule 53 (term -> term multiplyingOperator factor .)
+    TkLeq           reduce using rule 53 (term -> term multiplyingOperator factor .)
+    TkGeq           reduce using rule 53 (term -> term multiplyingOperator factor .)
+    TkEqual         reduce using rule 53 (term -> term multiplyingOperator factor .)
+    TkNEqual        reduce using rule 53 (term -> term multiplyingOperator factor .)
+    TkArrow         reduce using rule 53 (term -> term multiplyingOperator factor .)
+    TkAnd           reduce using rule 53 (term -> term multiplyingOperator factor .)
+    TkOr            reduce using rule 53 (term -> term multiplyingOperator factor .)
+    TkSemicolon     reduce using rule 53 (term -> term multiplyingOperator factor .)
+    TkCBlock        reduce using rule 53 (term -> term multiplyingOperator factor .)
+    TkGuard         reduce using rule 53 (term -> term multiplyingOperator factor .)
+    TkFi            reduce using rule 53 (term -> term multiplyingOperator factor .)
+    TkClosePar      reduce using rule 53 (term -> term multiplyingOperator factor .)
+    TkSoForth       reduce using rule 53 (term -> term multiplyingOperator factor .)
+    TkCBracket      reduce using rule 53 (term -> term multiplyingOperator factor .)
+
+
+state 71
+
+    (14) condicion -> tipoExpresion relation tipoExpresion .
+
+    TkArrow         reduce using rule 14 (condicion -> tipoExpresion relation tipoExpresion .)
+    TkAnd           reduce using rule 14 (condicion -> tipoExpresion relation tipoExpresion .)
+    TkOr            reduce using rule 14 (condicion -> tipoExpresion relation tipoExpresion .)
+
+
+state 72
+
+    (49) expression -> expression addingOperator term .
+    (53) term -> term . multiplyingOperator factor
+    (54) multiplyingOperator -> . TkMult
+    (55) multiplyingOperator -> . TkDiv
+
+    TkClosePar      reduce using rule 49 (expression -> expression addingOperator term .)
+    TkPlus          reduce using rule 49 (expression -> expression addingOperator term .)
+    TkMinus         reduce using rule 49 (expression -> expression addingOperator term .)
+    TkArrow         reduce using rule 49 (expression -> expression addingOperator term .)
+    TkAnd           reduce using rule 49 (expression -> expression addingOperator term .)
+    TkOr            reduce using rule 49 (expression -> expression addingOperator term .)
+    TkSemicolon     reduce using rule 49 (expression -> expression addingOperator term .)
+    TkCBlock        reduce using rule 49 (expression -> expression addingOperator term .)
+    TkGuard         reduce using rule 49 (expression -> expression addingOperator term .)
+    TkFi            reduce using rule 49 (expression -> expression addingOperator term .)
+    TkLess          reduce using rule 49 (expression -> expression addingOperator term .)
+    TkGreater       reduce using rule 49 (expression -> expression addingOperator term .)
+    TkLeq           reduce using rule 49 (expression -> expression addingOperator term .)
+    TkGeq           reduce using rule 49 (expression -> expression addingOperator term .)
+    TkEqual         reduce using rule 49 (expression -> expression addingOperator term .)
+    TkNEqual        reduce using rule 49 (expression -> expression addingOperator term .)
+    TkSoForth       reduce using rule 49 (expression -> expression addingOperator term .)
+    TkCBracket      reduce using rule 49 (expression -> expression addingOperator term .)
+    TkMult          shift and go to state 48
+    TkDiv           shift and go to state 50
+
+    multiplyingOperator            shift and go to state 49
+
+state 73
+
+    (58) factor -> TkOpenPar expression TkClosePar .
+
+    TkMult          reduce using rule 58 (factor -> TkOpenPar expression TkClosePar .)
+    TkDiv           reduce using rule 58 (factor -> TkOpenPar expression TkClosePar .)
+    TkPlus          reduce using rule 58 (factor -> TkOpenPar expression TkClosePar .)
+    TkMinus         reduce using rule 58 (factor -> TkOpenPar expression TkClosePar .)
+    TkSemicolon     reduce using rule 58 (factor -> TkOpenPar expression TkClosePar .)
+    TkCBlock        reduce using rule 58 (factor -> TkOpenPar expression TkClosePar .)
+    TkLess          reduce using rule 58 (factor -> TkOpenPar expression TkClosePar .)
+    TkGreater       reduce using rule 58 (factor -> TkOpenPar expression TkClosePar .)
+    TkLeq           reduce using rule 58 (factor -> TkOpenPar expression TkClosePar .)
+    TkGeq           reduce using rule 58 (factor -> TkOpenPar expression TkClosePar .)
+    TkEqual         reduce using rule 58 (factor -> TkOpenPar expression TkClosePar .)
+    TkNEqual        reduce using rule 58 (factor -> TkOpenPar expression TkClosePar .)
+    TkArrow         reduce using rule 58 (factor -> TkOpenPar expression TkClosePar .)
+    TkAnd           reduce using rule 58 (factor -> TkOpenPar expression TkClosePar .)
+    TkOr            reduce using rule 58 (factor -> TkOpenPar expression TkClosePar .)
+    TkGuard         reduce using rule 58 (factor -> TkOpenPar expression TkClosePar .)
+    TkFi            reduce using rule 58 (factor -> TkOpenPar expression TkClosePar .)
+    TkCBracket      reduce using rule 58 (factor -> TkOpenPar expression TkClosePar .)
+    TkSoForth       reduce using rule 58 (factor -> TkOpenPar expression TkClosePar .)
+    TkClosePar      reduce using rule 58 (factor -> TkOpenPar expression TkClosePar .)
+
+
+state 74
+
+    (9) instruccionIf -> TkIf condicion TkArrow printExpression . variasGuardias TkFi
+    (10) variasGuardias -> . TkGuard condicion TkArrow bloque variasGuardias
+    (11) variasGuardias -> . TkGuard condicion TkArrow printExpression variasGuardias
+    (12) variasGuardias -> . empty
+    (46) empty -> .
+
+    TkGuard         shift and go to state 84
+    TkFi            reduce using rule 46 (empty -> .)
+
+    variasGuardias                 shift and go to state 83
+    empty                          shift and go to state 85
+
+state 75
+
+    (8) instruccionIf -> TkIf condicion TkArrow bloque . variasGuardias TkFi
+    (10) variasGuardias -> . TkGuard condicion TkArrow bloque variasGuardias
+    (11) variasGuardias -> . TkGuard condicion TkArrow printExpression variasGuardias
+    (12) variasGuardias -> . empty
+    (46) empty -> .
+
+    TkGuard         shift and go to state 84
+    TkFi            reduce using rule 46 (empty -> .)
+
+    variasGuardias                 shift and go to state 86
+    empty                          shift and go to state 85
+
+state 76
+
+    (15) condicion -> condicion operadorBool tipoExpresion .
+    (16) condicion -> condicion operadorBool tipoExpresion . relation tipoExpresion
+    (20) relation -> . TkLess
+    (21) relation -> . TkGreater
+    (22) relation -> . TkLeq
+    (23) relation -> . TkGeq
+    (24) relation -> . TkEqual
+    (25) relation -> . TkNEqual
+
+    TkArrow         reduce using rule 15 (condicion -> condicion operadorBool tipoExpresion .)
+    TkAnd           reduce using rule 15 (condicion -> condicion operadorBool tipoExpresion .)
+    TkOr            reduce using rule 15 (condicion -> condicion operadorBool tipoExpresion .)
+    TkLess          shift and go to state 56
+    TkGreater       shift and go to state 55
+    TkLeq           shift and go to state 54
+    TkGeq           shift and go to state 53
+    TkEqual         shift and go to state 52
+    TkNEqual        shift and go to state 51
+
+    relation                       shift and go to state 87
+
+state 77
+
+    (31) declaracionSemiColon -> declaracionSemiColon TkSemicolon declaracion .
+
+    TkSemicolon     reduce using rule 31 (declaracionSemiColon -> declaracionSemiColon TkSemicolon declaracion .)
+    TkIf            reduce using rule 31 (declaracionSemiColon -> declaracionSemiColon TkSemicolon declaracion .)
+    TkId            reduce using rule 31 (declaracionSemiColon -> declaracionSemiColon TkSemicolon declaracion .)
+    TkRead          reduce using rule 31 (declaracionSemiColon -> declaracionSemiColon TkSemicolon declaracion .)
+    TkPrint         reduce using rule 31 (declaracionSemiColon -> declaracionSemiColon TkSemicolon declaracion .)
+    TkPrintln       reduce using rule 31 (declaracionSemiColon -> declaracionSemiColon TkSemicolon declaracion .)
+
+
+state 78
+
+    (44) tipo -> TkInt .
+
+    TkSemicolon     reduce using rule 44 (tipo -> TkInt .)
+    TkIf            reduce using rule 44 (tipo -> TkInt .)
+    TkId            reduce using rule 44 (tipo -> TkInt .)
+    TkRead          reduce using rule 44 (tipo -> TkInt .)
+    TkPrint         reduce using rule 44 (tipo -> TkInt .)
+    TkPrintln       reduce using rule 44 (tipo -> TkInt .)
+    TkComma         reduce using rule 44 (tipo -> TkInt .)
+
+
+state 79
+
+    (34) declaracion -> TkId TkTwoPoints tipo .
+
+    TkSemicolon     reduce using rule 34 (declaracion -> TkId TkTwoPoints tipo .)
+    TkIf            reduce using rule 34 (declaracion -> TkId TkTwoPoints tipo .)
+    TkId            reduce using rule 34 (declaracion -> TkId TkTwoPoints tipo .)
+    TkRead          reduce using rule 34 (declaracion -> TkId TkTwoPoints tipo .)
+    TkPrint         reduce using rule 34 (declaracion -> TkId TkTwoPoints tipo .)
+    TkPrintln       reduce using rule 34 (declaracion -> TkId TkTwoPoints tipo .)
+    TkComma         reduce using rule 34 (declaracion -> TkId TkTwoPoints tipo .)
+
+
+state 80
+
+    (43) tipo -> TkBool .
+
+    TkSemicolon     reduce using rule 43 (tipo -> TkBool .)
+    TkIf            reduce using rule 43 (tipo -> TkBool .)
+    TkId            reduce using rule 43 (tipo -> TkBool .)
+    TkRead          reduce using rule 43 (tipo -> TkBool .)
+    TkPrint         reduce using rule 43 (tipo -> TkBool .)
+    TkPrintln       reduce using rule 43 (tipo -> TkBool .)
+    TkComma         reduce using rule 43 (tipo -> TkBool .)
+
+
+state 81
+
+    (45) tipo -> TkArray . TkOBracket expression TkSoForth expression TkCBracket
+
+    TkOBracket      shift and go to state 88
+
+
+state 82
+
+    (33) declaracion -> TkId TkComma declaracion . TkComma tipo
+
+    TkComma         shift and go to state 89
+
+
+state 83
+
+    (9) instruccionIf -> TkIf condicion TkArrow printExpression variasGuardias . TkFi
+
+    TkFi            shift and go to state 90
+
+
+state 84
+
+    (10) variasGuardias -> TkGuard . condicion TkArrow bloque variasGuardias
+    (11) variasGuardias -> TkGuard . condicion TkArrow printExpression variasGuardias
+    (13) condicion -> . tipoExpresion
+    (14) condicion -> . tipoExpresion relation tipoExpresion
+    (15) condicion -> . condicion operadorBool tipoExpresion
+    (16) condicion -> . condicion operadorBool tipoExpresion relation tipoExpresion
+    (19) tipoExpresion -> . expression
+    (47) expression -> . term
+    (48) expression -> . addingOperator term
+    (49) expression -> . expression addingOperator term
+    (52) term -> . factor
+    (53) term -> . term multiplyingOperator factor
+    (50) addingOperator -> . TkPlus
+    (51) addingOperator -> . TkMinus
+    (56) factor -> . TkId
+    (57) factor -> . TkNum
+    (58) factor -> . TkOpenPar expression TkClosePar
+    (59) factor -> . TkMinus TkNum
+    (60) factor -> . TkString
+
+    TkPlus          shift and go to state 34
+    TkMinus         shift and go to state 23
+    TkId            shift and go to state 29
+    TkNum           shift and go to state 25
+    TkOpenPar       shift and go to state 32
+    TkString        shift and go to state 31
+
+    addingOperator                 shift and go to state 24
+    term                           shift and go to state 26
+    factor                         shift and go to state 27
+    condicion                      shift and go to state 91
+    tipoExpresion                  shift and go to state 28
+    expression                     shift and go to state 30
+
+state 85
+
+    (12) variasGuardias -> empty .
+
+    TkFi            reduce using rule 12 (variasGuardias -> empty .)
+
+
+state 86
+
+    (8) instruccionIf -> TkIf condicion TkArrow bloque variasGuardias . TkFi
+
+    TkFi            shift and go to state 92
+
+
+state 87
+
+    (16) condicion -> condicion operadorBool tipoExpresion relation . tipoExpresion
+    (19) tipoExpresion -> . expression
+    (47) expression -> . term
+    (48) expression -> . addingOperator term
+    (49) expression -> . expression addingOperator term
+    (52) term -> . factor
+    (53) term -> . term multiplyingOperator factor
+    (50) addingOperator -> . TkPlus
+    (51) addingOperator -> . TkMinus
+    (56) factor -> . TkId
+    (57) factor -> . TkNum
+    (58) factor -> . TkOpenPar expression TkClosePar
+    (59) factor -> . TkMinus TkNum
+    (60) factor -> . TkString
+
+    TkPlus          shift and go to state 34
+    TkMinus         shift and go to state 23
+    TkId            shift and go to state 29
+    TkNum           shift and go to state 25
+    TkOpenPar       shift and go to state 32
+    TkString        shift and go to state 31
+
+    addingOperator                 shift and go to state 24
+    tipoExpresion                  shift and go to state 93
+    expression                     shift and go to state 30
+    factor                         shift and go to state 27
+    term                           shift and go to state 26
+
+state 88
+
+    (45) tipo -> TkArray TkOBracket . expression TkSoForth expression TkCBracket
+    (47) expression -> . term
+    (48) expression -> . addingOperator term
+    (49) expression -> . expression addingOperator term
+    (52) term -> . factor
+    (53) term -> . term multiplyingOperator factor
+    (50) addingOperator -> . TkPlus
+    (51) addingOperator -> . TkMinus
+    (56) factor -> . TkId
+    (57) factor -> . TkNum
+    (58) factor -> . TkOpenPar expression TkClosePar
+    (59) factor -> . TkMinus TkNum
+    (60) factor -> . TkString
+
+    TkPlus          shift and go to state 34
+    TkMinus         shift and go to state 23
+    TkId            shift and go to state 29
+    TkNum           shift and go to state 25
+    TkOpenPar       shift and go to state 32
+    TkString        shift and go to state 31
+
+    expression                     shift and go to state 94
+    factor                         shift and go to state 27
+    term                           shift and go to state 26
+    addingOperator                 shift and go to state 24
+
+state 89
+
+    (33) declaracion -> TkId TkComma declaracion TkComma . tipo
+    (43) tipo -> . TkBool
+    (44) tipo -> . TkInt
+    (45) tipo -> . TkArray TkOBracket expression TkSoForth expression TkCBracket
+
+    TkBool          shift and go to state 80
+    TkInt           shift and go to state 78
+    TkArray         shift and go to state 81
+
+    tipo                           shift and go to state 95
+
+state 90
+
+    (9) instruccionIf -> TkIf condicion TkArrow printExpression variasGuardias TkFi .
+
+    TkSemicolon     reduce using rule 9 (instruccionIf -> TkIf condicion TkArrow printExpression variasGuardias TkFi .)
+    TkCBlock        reduce using rule 9 (instruccionIf -> TkIf condicion TkArrow printExpression variasGuardias TkFi .)
+
+
+state 91
+
+    (10) variasGuardias -> TkGuard condicion . TkArrow bloque variasGuardias
+    (11) variasGuardias -> TkGuard condicion . TkArrow printExpression variasGuardias
+    (15) condicion -> condicion . operadorBool tipoExpresion
+    (16) condicion -> condicion . operadorBool tipoExpresion relation tipoExpresion
+    (17) operadorBool -> . TkAnd
+    (18) operadorBool -> . TkOr
+
+    TkArrow         shift and go to state 96
+    TkAnd           shift and go to state 64
+    TkOr            shift and go to state 61
+
+    operadorBool                   shift and go to state 63
+
+state 92
+
+    (8) instruccionIf -> TkIf condicion TkArrow bloque variasGuardias TkFi .
+
+    TkSemicolon     reduce using rule 8 (instruccionIf -> TkIf condicion TkArrow bloque variasGuardias TkFi .)
+    TkCBlock        reduce using rule 8 (instruccionIf -> TkIf condicion TkArrow bloque variasGuardias TkFi .)
+
+
+state 93
+
+    (16) condicion -> condicion operadorBool tipoExpresion relation tipoExpresion .
+
+    TkArrow         reduce using rule 16 (condicion -> condicion operadorBool tipoExpresion relation tipoExpresion .)
+    TkAnd           reduce using rule 16 (condicion -> condicion operadorBool tipoExpresion relation tipoExpresion .)
+    TkOr            reduce using rule 16 (condicion -> condicion operadorBool tipoExpresion relation tipoExpresion .)
+
+
+state 94
+
+    (45) tipo -> TkArray TkOBracket expression . TkSoForth expression TkCBracket
+    (49) expression -> expression . addingOperator term
+    (50) addingOperator -> . TkPlus
+    (51) addingOperator -> . TkMinus
+
+    TkSoForth       shift and go to state 97
+    TkPlus          shift and go to state 34
+    TkMinus         shift and go to state 58
+
+    addingOperator                 shift and go to state 59
+
+state 95
+
+    (33) declaracion -> TkId TkComma declaracion TkComma tipo .
+
+    TkSemicolon     reduce using rule 33 (declaracion -> TkId TkComma declaracion TkComma tipo .)
+    TkIf            reduce using rule 33 (declaracion -> TkId TkComma declaracion TkComma tipo .)
+    TkId            reduce using rule 33 (declaracion -> TkId TkComma declaracion TkComma tipo .)
+    TkRead          reduce using rule 33 (declaracion -> TkId TkComma declaracion TkComma tipo .)
+    TkPrint         reduce using rule 33 (declaracion -> TkId TkComma declaracion TkComma tipo .)
+    TkPrintln       reduce using rule 33 (declaracion -> TkId TkComma declaracion TkComma tipo .)
+    TkComma         reduce using rule 33 (declaracion -> TkId TkComma declaracion TkComma tipo .)
+
+
+state 96
+
+    (10) variasGuardias -> TkGuard condicion TkArrow . bloque variasGuardias
+    (11) variasGuardias -> TkGuard condicion TkArrow . printExpression variasGuardias
+    (2) bloque -> . TkOBlock t TkCBlock
+    (39) printExpression -> . print
+    (40) print -> . TkPrint expression
+
+    TkOBlock        shift and go to state 3
+    TkPrint         shift and go to state 17
+
+    printExpression                shift and go to state 98
+    bloque                         shift and go to state 99
+    print                          shift and go to state 5
+
+state 97
+
+    (45) tipo -> TkArray TkOBracket expression TkSoForth . expression TkCBracket
+    (47) expression -> . term
+    (48) expression -> . addingOperator term
+    (49) expression -> . expression addingOperator term
+    (52) term -> . factor
+    (53) term -> . term multiplyingOperator factor
+    (50) addingOperator -> . TkPlus
+    (51) addingOperator -> . TkMinus
+    (56) factor -> . TkId
+    (57) factor -> . TkNum
+    (58) factor -> . TkOpenPar expression TkClosePar
+    (59) factor -> . TkMinus TkNum
+    (60) factor -> . TkString
+
+    TkPlus          shift and go to state 34
+    TkMinus         shift and go to state 23
+    TkId            shift and go to state 29
+    TkNum           shift and go to state 25
+    TkOpenPar       shift and go to state 32
+    TkString        shift and go to state 31
+
+    expression                     shift and go to state 100
+    factor                         shift and go to state 27
+    term                           shift and go to state 26
+    addingOperator                 shift and go to state 24
+
+state 98
+
+    (11) variasGuardias -> TkGuard condicion TkArrow printExpression . variasGuardias
+    (10) variasGuardias -> . TkGuard condicion TkArrow bloque variasGuardias
+    (11) variasGuardias -> . TkGuard condicion TkArrow printExpression variasGuardias
+    (12) variasGuardias -> . empty
+    (46) empty -> .
+
+    TkGuard         shift and go to state 84
+    TkFi            reduce using rule 46 (empty -> .)
+
+    variasGuardias                 shift and go to state 101
+    empty                          shift and go to state 85
+
+state 99
+
+    (10) variasGuardias -> TkGuard condicion TkArrow bloque . variasGuardias
+    (10) variasGuardias -> . TkGuard condicion TkArrow bloque variasGuardias
+    (11) variasGuardias -> . TkGuard condicion TkArrow printExpression variasGuardias
+    (12) variasGuardias -> . empty
+    (46) empty -> .
+
+    TkGuard         shift and go to state 84
+    TkFi            reduce using rule 46 (empty -> .)
+
+    variasGuardias                 shift and go to state 102
+    empty                          shift and go to state 85
+
+state 100
+
+    (45) tipo -> TkArray TkOBracket expression TkSoForth expression . TkCBracket
+    (49) expression -> expression . addingOperator term
+    (50) addingOperator -> . TkPlus
+    (51) addingOperator -> . TkMinus
+
+    TkCBracket      shift and go to state 103
+    TkPlus          shift and go to state 34
+    TkMinus         shift and go to state 58
+
+    addingOperator                 shift and go to state 59
+
+state 101
+
+    (11) variasGuardias -> TkGuard condicion TkArrow printExpression variasGuardias .
+
+    TkFi            reduce using rule 11 (variasGuardias -> TkGuard condicion TkArrow printExpression variasGuardias .)
+
+
+state 102
+
+    (10) variasGuardias -> TkGuard condicion TkArrow bloque variasGuardias .
+
+    TkFi            reduce using rule 10 (variasGuardias -> TkGuard condicion TkArrow bloque variasGuardias .)
+
+
+state 103
+
+    (45) tipo -> TkArray TkOBracket expression TkSoForth expression TkCBracket .
+
+    TkSemicolon     reduce using rule 45 (tipo -> TkArray TkOBracket expression TkSoForth expression TkCBracket .)
+    TkIf            reduce using rule 45 (tipo -> TkArray TkOBracket expression TkSoForth expression TkCBracket .)
+    TkId            reduce using rule 45 (tipo -> TkArray TkOBracket expression TkSoForth expression TkCBracket .)
+    TkRead          reduce using rule 45 (tipo -> TkArray TkOBracket expression TkSoForth expression TkCBracket .)
+    TkPrint         reduce using rule 45 (tipo -> TkArray TkOBracket expression TkSoForth expression TkCBracket .)
+    TkPrintln       reduce using rule 45 (tipo -> TkArray TkOBracket expression TkSoForth expression TkCBracket .)
+    TkComma         reduce using rule 45 (tipo -> TkArray TkOBracket expression TkSoForth expression TkCBracket .)
+
+WARNING: 
+WARNING: Conflicts:
+WARNING: 
+WARNING: shift/reduce conflict for TkNum in state 23 resolved as shift

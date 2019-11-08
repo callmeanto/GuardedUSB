@@ -1,0 +1,76 @@
+gramatica
+
+NOTA: estan ya implementados programa, bloque y declaraci�nVariables. 
+Sin embargo, revisa en el AnalizadorSintactico.py la gram�tica ya que este archivo 
+es solo de ayuda, de una especie de gu�a y no es totalmente fiel a la gram�tica utilizada. 
+Sin embargo, se deben hacer cambios en AnalizadorSintactico.py en cuanto a las instrucciones t, 
+listaInstrucciones y declaracionVariables para que queden como sus respectivas gram�ticas que se 
+observan en este archivo (No me dio tiempo de hacerlo).
+Por otro lado, falta la implementacion de las instrucciones If, read, print, asignar, for y do.
+
+programa-> bloque
+bloque -> |[ t |]
+
+t--> listaInstrucciones
+
+
+listaInstrucciones -> InstruccionIf | InstruccionFor | InstruccionDo | InstruccionPrint | InstruccionAsignar | Instruccion read | declaracionVariables | lambda
+
+declaracionVariables -> declare declaracion listaInstrucciones
+
+declaracion -> declaracion tk; ListaVariables tk: tipo |  ListaVariables tk: tipo 
+
+
+listaVariables --> listaVariables tk, tkId 
+
+listaVariables --> | TkId 
+
+
+tipo -> bool | int | array
+
+
+if(p) print tal
+
+if(p)-->
+
+asignar --> TkId TkAsig expresion | asignar TkSemicolon TkId TkAsig expresion
+
+InstruccionIf -> TkIf condicion tkArrow listaInstrucciones variasGuardias Tkfi tk; | TkIf condicion tkArrow pepe variasGuardias Tkfi tk;  
+
+
+variasGuardas -> Tk[] condicion tkArrow bloque variasGuardias | Tk[] condicion tkArrow pepe variasGuardias | lambda
+
+
+pepe -> InstruccionAsignar | InstruccionPrint | lambda
+
+
+condicion --> expression relation expression operadorBooleano condicion | lambda
+
+operadorBinario --> TkAnd | TkOr | lambda
+
+relation --> >= | <= | == | != | > | < 
+
+
+funciones --> max | min | atoi
+
+InstruccionAsignar --> TkId Tk:= expression Tk; InstruccionAsignar | lambda
+
+InstruccionRead --> read TkId Tk; InstruccionRead | lambda
+
+InstruccionPrint --> print aImprimir
+
+aImprimir --> Tkid | TkString | TkNum | aImprimir Tk|| | lambda
+
+InstruccionDo--> Tkdo condicion TkArrow bloque Tkod 
+
+InstruccionFor --> Tkfor Tkid TkIn min(y) TkTo max(y) TkArrow bloque TkRof
+
+expression -> term | AddingOperator term | expresssion addingOperator Term
+
+addingOperator -> TkPlus | TkMinus
+
+term --> factor | term MultiplyingOperator factor
+
+multiplyingOperator --> Tk* | Tk/
+
+factor-> TkId | TkNumber | Tk( expression Tk)
