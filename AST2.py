@@ -1,29 +1,53 @@
-class Node:
+txt=" "
+cont=0
+
+def incrementarContador():
+    global cont
+    cont +=1
+    return "%d" %cont
+
+
+class TerminalNode:
+    def __init__(self,name,tk):
+        self.name = name
+        self.tk = tk
+
+    def imprimir(self,ident):
+        print (ident+self.tk+": "+self.name)
+            
+    def traducir(self):
+        global txt
+        id = incrementarContador()
+        txt += id + "[label= \""+self.name+"\"]"+"\n\t"
+
+        return id
+
+# Clase Node, nada simbolo de la gramatica es considerado un nodo
+class NoTerminalNode:
+
+    # Constructor de la clase
     def __init__(self, sons=None, name=None):
         self.name = name
         self.sons = sons
 
+    # Metodo para imprimir la gramatica
     def imprimir(self, ident):
-        print(ident+"Nodo: "+self.name)
+        print(ident+"Node: "+self.name)
         
-        for index, son in enumerate(self.sons):
-            if(son.sons == None):
-                break
-            son.imprimir(" "+ident)
-    """
+        for i in range(len(self.sons)):
+            if(self.sons[i] == None):
+                continue
+            self.sons[i].imprimir(" "+ident)
+
+    # Metodo para traducir simbolo no terminal o terminal en el arbol    
     def traducir(self):
         global txt
         id = incrementarContador()
 
-        son1 = self.son1.traducir()
-        son2 = self.son2.traducir()
-        son3 = self.son3.traducir()
-
+        
         txt += id + "[label= "+self.name+"]"+"\n\t"
 
-        txt += id+"->"+son1+"\n\t"
-        txt += id+"->"+son2+"\n\t"
-        txt += id+"->"+son3+"\n\t"
+        for i in range(len(self.sons)):
+            txt += id+"->"+self.sons[i].traducir()+"\n\t"
 
         return id
-    """

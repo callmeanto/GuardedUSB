@@ -17,6 +17,7 @@ from lexer import tokens
 import sys
 import os.path
 from AST import *
+from AST2 import *
 
 
 
@@ -28,7 +29,7 @@ def p_program(p):
 def p_bloque(p):
     '''bloque : TkOBlock t TkCBlock'''
     print("bloque")
-    p[0] = bloque(TkOBlock(p[1]),p[2],TkCBlock(p[3]), "bloque")
+    p[0] = NoTerminalNode([TerminalNode(p[1],"OBlock"),p[2],TkCBlock(p[3])], "bloque")
     print(p)
 """
 def p_lista1(p):
