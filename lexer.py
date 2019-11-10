@@ -224,7 +224,7 @@ while True:
     tok = lexer.token()
     if not tok:
         break      # No more input
-    print_format(tok)
+    #print_format(tok)
 
 # Cerramos el archivo
 archivo.close()
