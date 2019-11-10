@@ -376,6 +376,7 @@ def p_embed3(p):
 
 def p_error(p):
     print ("Error de sintaxis ", p)
+    sys.exit(0)
 
 if(len(sys.argv)<=1):
     print("Error, debe ingresar el nombre del archivo a ser leido")
