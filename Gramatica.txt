@@ -1,76 +1,121 @@
-gramatica
 
-NOTA: estan ya implementados programa, bloque y declaraci�nVariables. 
-Sin embargo, revisa en el AnalizadorSintactico.py la gram�tica ya que este archivo 
-es solo de ayuda, de una especie de gu�a y no es totalmente fiel a la gram�tica utilizada. 
-Sin embargo, se deben hacer cambios en AnalizadorSintactico.py en cuanto a las instrucciones t, 
-listaInstrucciones y declaracionVariables para que queden como sus respectivas gram�ticas que se 
-observan en este archivo (No me dio tiempo de hacerlo).
-Por otro lado, falta la implementacion de las instrucciones If, read, print, asignar, for y do.
+     program -> bloque
 
-programa-> bloque
-bloque -> |[ t |]
+     bloque -> TkOBlock t TkCBlock
 
-t--> listaInstrucciones
+     t -> casoInstrucciones
+        | declaracionVariables casoInstrucciones
 
+     casoInstrucciones -> listaInstrucciones
+     		     | casoInstrucciones TkSemicolon listaInstrucciones
 
-listaInstrucciones -> InstruccionIf | InstruccionFor | InstruccionDo | InstruccionPrint | InstruccionAsignar | Instruccion read | declaracionVariables | lambda
+     listaInstrucciones -> instruccionIf
+                        | instruccionFor
+     		        | instruccionDo
+ 	                | asignacionVariables
+                        | readVariables
+                        | printExpression
+                        | printlnExpression
 
-declaracionVariables -> declare declaracion listaInstrucciones
+    instruccionIf -> TkIf condicion TkArrow bloque variasGuardias TkFi
 
-declaracion -> declaracion tk; ListaVariables tk: tipo |  ListaVariables tk: tipo 
+    		  | TkIf condicion TkArrow printExpression variasGuardias TkFi
 
+    instruccionFor -> TkFor TkId TkIn expression TkTo expression TkArrow bloque TkRof
 
-listaVariables --> listaVariables tk, tkId 
+    instruccionDo -> TkDo condicion TkArrow bloque TkOd
 
-listaVariables --> | TkId 
+    variasGuardias -> TkGuard condicion TkArrow bloque variasGuardias
+                    | TkGuard condicion TkArrow printExpression variasGuardias
+                    | empty
 
+    condicion -> expression
+               | expression relation expression
+               | TkNot expression
+               | condicion operadorBool expression
+               | condicion operadorBool expression relation expression
 
-tipo -> bool | int | array
+    operadorBool -> TkAnd
+                 | TkOr
+                 | TkNot
 
+    relation -> TkLess
+              | TkGreater
+              | TkLeq
+              | TkGeq
+              |TkEqual
+              | TkNEqual
+   
+    declaracionVariables -> TkDeclare declaracionSemiColon
 
-if(p) print tal
+    declaracionSemiColon -> declaracionSemiColon TkSemicolon declaracion
+                          | declaracion
 
-if(p)-->
+    declaracion -> TkId TkComma declaracion TkComma tipo
+                | TkId TkTwoPoints tipo
+                | TkId TkComma declaracion
 
-asignar --> TkId TkAsig expresion | asignar TkSemicolon TkId TkAsig expresion
+    asignacionVariables -> asignacion
 
-InstruccionIf -> TkIf condicion tkArrow listaInstrucciones variasGuardias Tkfi tk; | TkIf condicion tkArrow pepe variasGuardias Tkfi tk;  
+    asignacion -> TkId TkAsig listaExpression 
+                | TkId TkAsig asignacionArreglos
 
+    listaExpression -> listaExpression TkComma expression
+                     | -> expression
 
-variasGuardas -> Tk[] condicion tkArrow bloque variasGuardias | Tk[] condicion tkArrow pepe variasGuardias | lambda
+    asignacionArreglos -> TkId listaIndices posicionArreglo
 
+    listaIndices -> listaIndices TkOpenPar expression TkTwoPoints expression TkClosePar
+                  | TkOpenPar expression TkTwoPoints expression TkClosePar
+    
+    posicionArreglo -> TkOBracket TkNum TkCBracket
+                     | -> <empty>               
+           
 
-pepe -> InstruccionAsignar | InstruccionPrint | lambda
+    readVariables -> read
 
+    read -> TkRead TkId
 
-condicion --> expression relation expression operadorBooleano condicion | lambda
+    printExpression -> print
 
-operadorBinario --> TkAnd | TkOr | lambda
+    print -> TkPrint concatPrint
 
-relation --> >= | <= | == | != | > | < 
+    concatPrint -> concatPrint TkConcat expression
+                 | expression
 
+    printlnExpression -> println
 
-funciones --> max | min | atoi
+    println -> TkPrintln expression
+    tipo -> TkBool
+          | TkInt
+          | TkArray TkOBracket expression TkSoForth expression TkCBracket
+    empty -> <empty>
+   
+    expression -> term
+               | addingOperator term
+               | expression addingOperator term
+               | embed
+  
+    addingOperator -> TkPlus
+                  | TkMinus
 
-InstruccionAsignar --> TkId Tk:= expression Tk; InstruccionAsignar | lambda
-
-InstruccionRead --> read TkId Tk; InstruccionRead | lambda
-
-InstruccionPrint --> print aImprimir
-
-aImprimir --> Tkid | TkString | TkNum | aImprimir Tk|| | lambda
-
-InstruccionDo--> Tkdo condicion TkArrow bloque Tkod 
-
-InstruccionFor --> Tkfor Tkid TkIn min(y) TkTo max(y) TkArrow bloque TkRof
-
-expression -> term | AddingOperator term | expresssion addingOperator Term
-
-addingOperator -> TkPlus | TkMinus
-
-term --> factor | term MultiplyingOperator factor
-
-multiplyingOperator --> Tk* | Tk/
-
-factor-> TkId | TkNumber | Tk( expression Tk)
+    term -> factor
+         | term multiplyingOperator factor
+  
+    multiplyingOperator -> TkMult
+                        | TkDiv
+  
+    factor -> Id
+    	   | TkNum
+    	   | TkOpenPar expression TkClosePar
+    	   | TkMinus TkNum
+    	   | TkString
+    	   | TkTrue
+    	   | TkFalse
+         | TkId TkOBracket expression TkCBracket
+ 
+    Id -> TkId
+ 
+    embed -> TkMax TkOpenPar TkId TkClosePar
+           | TkMin TkOpenPar TkId TkClosePar
+           | TkAtoi TkOpenPar TkId TkClosePar
