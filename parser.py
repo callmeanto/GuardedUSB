@@ -108,9 +108,7 @@ def p_variasGuardias(p):
 # Regla gramatical que deriva de la instruccion For
 def p_For(p):
     '''
-    
     For : TkFor TkId TkIn expresion TkTo expresion TkArrow bloque TkRof
-    
     '''
     p[0]=Node([CFor(p[1]),Id(p[2]),CIn(p[3]),p[4],CTo(p[5]),p[6], CArrow(p[7]), p[8], CRof(p[9])], "For") 
 
@@ -170,20 +168,20 @@ def p_relacion(p):
 
 # Gramatica para declaracion de variables #
 def p_declaracionVariables(p):
-    '''declaracionVariables : TkDeclare declaracionSemicolonn'''
-    p[0]=declaracionVariables(declare(p[1]), p[2],"declaracionVariables")
+    '''declaracionVariables : TkDeclare declaracionSemicolon'''
+    p[0]=Node([Id(p[1]), p[2]],"declaracionVariables")
 
 # Regla gramatical para cuando la declaracion es predecida por una declaracion
 # separada por punto y coma
-def p_declaracionSemicolonn(p):
-    '''declaracionSemicolonn : declaracionSemicolonn TkSemicolon declaracion
+def p_declaracionSemicolon(p):
+    '''declaracionSemicolon : declaracionSemicolon TkSemicolon declaracion
                             | declaracion
     
     '''
     if len(p) == 2:
-        p[0]=Node([p[1]], "declaracionSemicolonn")   
+        p[0]=Node([p[1]], "declaracionSemicolon")   
     else:
-        p[0]=Node([p[1], Semicolon(p[2]), p[3]], "declaracionSemicolonn")
+        p[0]=Node([p[1], Semicolon(p[2]), p[3]], "declaracionSemicolon")
 
 # Declaracion multiple de varios tipos en una misma linea de instruccion	
 def p_declaracion(p):
@@ -243,7 +241,7 @@ def p_print(p):
     ''' print : TkPrint concatPrint 
               | TkPrintln concatPrint
     '''
-    p[0]=Node([Print(p[1]),p[2]],"print")
+    p[0]=Node([Id(p[1]),p[2]],"print")
 
 # Regla gramatical para concatenar expresiones
 def p_concatPrint(p):
@@ -266,7 +264,7 @@ def p_tipo(p):
             | TkArray TkOBracket expresion TkSoForth expresion TkCBracket
     '''
     if len(p) == 2:
-        p[0]=Node([booleano(p[1])], "tipo")
+        p[0]=Node([Id(p[1])], "tipo")
     else:
         p[0]=Node([array(p[1]),COBracket(p[2]),p[3], CSoForth(p[4]),p[5],CCBracket(p[6])],"tipo")
 
