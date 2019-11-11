@@ -317,10 +317,13 @@ def p_term(p):
 def p_multiplyingOperator(p):
     '''multiplyingOperator : TkMult
                            | TkDiv
+                           | TkMod
     '''
     p[0] = Node([Mult(p[1])],"multiplyingOperator")
     
-
+# Regla gramatical para expresiones de tipo factor:
+# variables, numericas, strings, funciones, booleanos
+# y combinacion de operadores aritmeticos unarios con variables
 def p_factor(p):
     '''factor : TkId
               | TkNum
@@ -332,6 +335,7 @@ def p_factor(p):
               | TkMinus TkNum
               | TkOpenPar expresion TkClosePar
               | TkId TkOBracket expresion TkCBracket
+              | TkNot TkId TkOBracket expresion TkCBracket
     '''
     if len(p) == 2 and p[1]!="embed":
         p[0] = Node([Id(p[1])],"factor")
@@ -340,24 +344,29 @@ def p_factor(p):
     elif len(p) == 3:
         p[0]=Node([CNot(p[1]), Id(p[2])], "factor")
     elif len(p) == 4:
-        p[0]=Node([CNot(p[1]), Id(p[2])], "factor")        
+        p[0]=Node([CNot(p[1]), p[2],Id(p[3])], "factor")        
     elif len(p) == 5:
-        p[0]=Node([CNot(p[1]), Id(p[2])], "factor")
+        p[0]=Node([CNot(p[1]), Id(p[2]),p[3],Id(p[4])], "factor")
+    elif len(p) == 6:
+        p[0]=Node([Id(p[1]),CNot(p[2]), Id(p[3]),p[4],Id(p[5])], "factor")
 
 
-
+# Regla gramatical para funciones embebidas
 def p_embed(p):
     '''embed : TkMax TkOpenPar TkId TkClosePar
              | TkMin TkOpenPar TkId TkClosePar
              | TkAtoi TkOpenPar TkId TkClosePar
+             | TkSize TkOpenPar TkId TkClosePar
     '''
     p[0]=Node([CMax(p[1]),CMax(p[2]),CMax(p[3]), Id(p[4])], "embed")
 
-
+# Regla gramatical para el manejo de errores de sintaxis
+# Por defecto del parser
 def p_error(p):
     print ("Error de sintaxis ", p)
     sys.exit(0)
 
+# Casos borde de IO: No ingresa ruta de archivo de entrada
 if(len(sys.argv)<=1):
     print("Error, debe ingresar el nombre del archivo a ser leido")
     sys.exit(0)
@@ -381,13 +390,13 @@ else:
             print("El archivo indicado no existe")
             sys.exit(0)
 
-
+# creamos archivo de formato .vz para generar el arbol abstracto
 def traducir(result):
     graphFile = open('AST.vz', 'w')
     graphFile.write(result.traducir())
     graphFile.close()
 
-
+# Que se haga la magia
 parser=yacc.yacc()
 result = parser.parse(entrada)
 
