@@ -1,13 +1,3 @@
-# GuardedUSB Interpreter
-# Segunda etapa: Analizador Sintactico
-# Lenguaje de implementacion del Interprete: Python 3
-# Autores: Carlos Gonzalez y Antonella Requena
-# Carnets: 15-10611 15-11196
-# Fecha ultimo update: 02/11/2019
-# Descripcion: se implemento un lexer utilizando la libreria .ply de python, el siguiente programa recibe un archivo y retorna la lista de "tokens"
-# o elementos atomicos del lenguaje si pertenecen, o da un mensaje de error si
-# encuentra un caracter que no pertenece al lenguaje. Asi mismo, indica la posicion en donde se encuentra.
-
 import ply.yacc as yacc
 import os
 import codecs
@@ -17,6 +7,17 @@ from lexer import tokens
 import sys
 import os.path
 from AST import *
+
+# GuardedUSB Interpreter
+# Segunda etapa: Analizador Sintactico
+# Lenguaje de implementacion del Interprete: Python 3
+# Autores: Carlos Gonzalez y Antonella Requena
+# Carnets: 15-10611 15-11196
+# Fecha ultimo update: 10/11/2019
+# Descripcion: se implemento un lexer utilizando la libreria .ply de python, el siguiente programa recibe un archivo y retorna la lista de "tokens"
+# o elementos atomicos del lenguaje si pertenecen, o da un mensaje de error si
+# encuentra un caracter que no pertenece al lenguaje. Asi mismo, indica la posicion en donde se encuentra.
+
 
 # Funcion que describe la regla gramatical para la instruccion programa
 # esta instruccion es la principal y deriva a bloque
@@ -30,7 +31,7 @@ def p_program(p):
 # Esta produccion deriva a t que es el contenido del programa / subprograma
 def p_bloque(p):
     '''bloque : TkOBlock t TkCBlock'''
-    p[0] = Node([TkOBlock(p[1], "OBlock"), p[2], TkCBlock(p[3])], "bloque")
+    p[0] = Node([TkOBlock(p[1]), p[2], TkCBlock(p[3])], "bloque")
 
 # Funcion que describe la regla gramatical que genera el contenido del programa
 # deriva en declaracion de variables + conjunto de secuenciacion de instrucciones
@@ -51,7 +52,6 @@ def p_t(p):
 def p_casoInstrucciones(p):
     '''casoInstrucciones : Instruccion
                          | casoInstrucciones TkSemicolon Instruccion
-
     '''
     # Caso en que solo hay una instruccion
     if len(p)==2:
