@@ -30,7 +30,7 @@ def p_program(p):
 # Esta produccion deriva a t que es el contenido del programa / subprograma
 def p_bloque(p):
     '''bloque : TkOBlock t TkCBlock'''
-    p[0] = Node([TkOBlock(p[1]), p[2], TkCBlock(p[3])], "bloque")
+    p[0] = Node([p[2]], "Block")
 
 # Funcion que describe la regla gramatical que genera el contenido del programa
 # deriva en declaracion de variables + conjunto de secuenciacion de instrucciones
@@ -42,10 +42,10 @@ def p_t(p):
     '''
     # Caso en que hay declaraciones y luego secuenciacion de instrucciones
     if len(p) == 3: 
-        p[0] = Node([p[1], p[2]], "t")
+        p[0] = Node([p[1], p[2]],None)
     # Caso en que solo hay secuenciacion de instrucciones
     else: 
-        p[0] = Node([p[1]], "t")
+        p[0] = Node([p[1]],None)
 
 # Funcion que describe la regla gramatical que genera una instruccion
 # una instruccion puede ser una secuencia de instrucciones o una sola instruccion
@@ -56,10 +56,10 @@ def p_casoInstrucciones(p):
     '''
     # Caso en que solo hay una instruccion
     if len(p)==2:
-        p[0]=Node([p[1]], "Instruccion")
+        p[0]=Node([p[1]], None)
     # Caso recursivo
     else: 
-        p[0]=Node([p[1], Semicolon(p[2]), p[3]], "Instruccion recursivo")
+        p[0]=Node([p[1], p[3]], None)
 
 
 ###########################################
@@ -78,7 +78,7 @@ def p_Instruccion(p):
     
     '''
 
-    p[0]=Node([p[1]],"Instruccion")
+    p[0]=Node([p[1]],"Sequencing")
 
 
 # Regla gramatical que describe la derivacion de la instruccion If
@@ -90,7 +90,7 @@ def p_If(p):
        | TkIf condicion TkArrow print variasGuardias TkFi
     
     '''
-    p[0]=Node([CIf(p[1]), p[2], CArrow(p[3]), p[4], p[5], CFi(p[6])],"If")
+    p[0]=Node([p[2], p[4], p[5]],"If")
  
 # Regla gramatical que deriva de la instruccion If cuando hay mas de una guardia
 def p_variasGuardias(p):
@@ -102,7 +102,7 @@ def p_variasGuardias(p):
     '''
     # Caso en que hay varias guardias
     if len(p) == 6:
-        p[0]=Node([CGuard(p[1]), p[2], CArrow(p[3]), p[4], p[5]], "VariasGuardias")
+        p[0]=Node([p[2], p[4], p[5]], "Guard")
     # Caso en que variasGuardias evalua lambda
     else: p[0]=Null()
 
@@ -111,14 +111,14 @@ def p_For(p):
     '''
     For : TkFor TkId TkIn expresion TkTo expresion TkArrow bloque TkRof
     '''
-    p[0]=Node([CFor(p[1]),Id(p[2]),CIn(p[3]),p[4],CTo(p[5]),p[6], CArrow(p[7]), p[8], CRof(p[9])], "For") 
+    p[0]=Node([Token(p[2],"Ident"),Token(None,"In"),p[4],p[6],p[8]], "For") 
 
 # Regla gramatical que deriva de la instruccion Do
 def p_Do(p):
     '''
     Do : TkDo condicion TkArrow bloque TkOd
     '''
-    p[0]=Node([CDo(p[1]), p[2], CArrow(p[3]),p[4],COd(p[5])],"Do")
+    p[0]=Node([p[2],p[4]],"Do")
 
 # Regla gramatical para determinar condiciones
 # Una condicion puede ser de tipo expresion, 
@@ -127,27 +127,37 @@ def p_Do(p):
 def p_condicion(p):
     '''
     condicion : expresion
+              | operadorBool expresion
               | expresion relacion expresion
               | condicion operadorBool expresion
               | condicion operadorBool expresion relacion expresion
     '''
     # Caso en que solo hay una expresion
     if len(p)==2:
-        p[0]=Node([p[1]], "condicion")
+        p[0]=Node([p[1]], None)
+    # Caso en que la expresion tiene un booleando delante
+    if len(p) == 3:
+        p[0] = Node([p[1],p[2]],None)
     # Caso en que hay condicion operador y expresion/ expresion relacion expresion
     elif len(p)== 4:
-        p[0]=Node([p[1],p[2],p[3]], "condicion")
+        p[0]=Node([p[1],p[2],p[3]], None)
     # Caso en que hay una combinacion de lo anterior
     else:
-        p[0]=Node([p[1],p[2],p[3], p[4], p[5]], "condicion")
+        p[0]=Node([p[1],p[2],p[3], p[4], p[5]], None)
 
 # Regla gramatical para definir operadores booleanos
 def p_operadorBool(p):
     '''operadorBool : TkAnd
                     | TkOr
+                    | TkNot
     
     '''
-    p[0]=Node([COr(p[1])], "Bool")
+    if p[1] == "\/":
+        p[0]=Node(None,"Or")
+    if p[1] == '!':
+        p[0] = Node(None,"Not")
+    else:
+        p[0]=Node(None,"And")
 
 # Regla gramatical que define los simbolos de una relacion, 
 # deriva en los tokens definidos para el lenguaje
@@ -160,7 +170,21 @@ def p_relacion(p):
              | TkEqual
              | TkNEqual
     '''
-    p[0]=Node([CLess(p[1])], "Relacion")
+    if p[1] == "<":
+        p[0]=Node(None, "Less")
+    elif p[1] == ">":
+        p[0] = Node(None,"Greater")
+    elif p[1] == "<=":
+        p[0] = Node(None,"Leq")
+    elif p[1] == ">=":
+        p[0] = Node(None,"Geq")
+    elif p[1] == "==":
+        p[0] = Node(None,"Equal")
+    elif p[1] == "!=":
+        p[0] = Node(None,"NEqual")
+
+
+
 
 ###########################################
 ####### GRAMATICA PARA CADA INSTRUCCION ###
@@ -170,7 +194,7 @@ def p_relacion(p):
 # Gramatica para declaracion de variables #
 def p_declaracionVariables(p):
     '''declaracionVariables : TkDeclare declaracionSemicolon'''
-    p[0]=Node([Id(p[1]), p[2]],"declaracionVariables")
+    p[0]=Node([p[2]],"declare")
 
 # Regla gramatical para cuando la declaracion es predecida por una declaracion
 # separada por punto y coma
@@ -180,9 +204,9 @@ def p_declaracionSemicolon(p):
     
     '''
     if len(p) == 2:
-        p[0]=Node([p[1]], "declaracionSemicolon")   
+        p[0]=Node([p[1]],None)   
     else:
-        p[0]=Node([p[1], Semicolon(p[2]), p[3]], "declaracionSemicolon")
+        p[0]=Node([p[1],Token(None,"Sequencing"),p[3]],None)
 
 # Declaracion multiple de varios tipos en una misma linea de instruccion	
 def p_declaracion(p):
@@ -191,9 +215,11 @@ def p_declaracion(p):
                    | TkId TkComma declaracion
     '''
     if len(p) == 6:
-        p[0]=Node([Id(p[1]), Comma(p[2]), p[3], Comma(p[4]), p[5]],"declaracion")
+        p[0]=Node([Token(p[1],"Ident"), p[3]],None)
+    if p[2] == ':':
+        p[0]=Node([Token(p[1],"Ident")],None)
     else:
-        p[0]=Node([Id(p[1]), TwoPoints(p[2]), p[3]],"declaracion")
+        p[0]=Node([Token(p[1],"Ident"),p[3]],None)
     
 
 # Gramatica para asignacion de variables
@@ -202,30 +228,30 @@ def p_asignacion(p):
                   | TkId TkAsig asignacionArreglos
     '''
 
-    p[0]= Node([Id(p[1]),Assignment(p[2]), p[3]], "asignacion")
+    p[0]= Node([Token(p[1],"Ident"), p[3]], "Asig")
 
 def p_listaExpresion(p):
     '''listaExpresion : listaExpresion TkComma expresion
                       | expresion
     '''
     if len(p) == 2:
-        p[0] = Node([p[1]],"expresion")
+        p[0] = Node([p[1]],None)
     else:
-        p[0]= Node([p[1],Comma(p[2]), p[3]], "expresion")
+        p[0]= Node([p[1], p[3]], None)
 
 
 def p_asignacionArreglos(p):
     '''asignacionArreglos : TkId listaIndices posicionArreglo'''
-    p[0] = Node([Id(p[1]),p[2],p[3]],"asignacionArreglos")
+    p[0] = Node([Token(p[1],"Ident"),p[2],p[3]],"ArrayAsig")
 
 def p_listaIndices(p):
     '''listaIndices : listaIndices TkOpenPar expresion TkTwoPoints expresion TkClosePar
                     | TkOpenPar expresion TkTwoPoints expresion TkClosePar
     '''
     if len(p) == 7:
-        p[0] = Node([p[1],TkOBlock(p[2]),p[3], TwoPoints(p[4]), p[5], TkCBlock(p[6])],"listaIndices")
+        p[0] = Node([p[1],p[3], p[5]],"ArrayAsig")
     else:
-        p[0] = Node([TkOBlock(p[1]),p[2], TwoPoints(p[3]), p[4], TkCBlock(p[5])],"listaIndices")
+        p[0] = Node([p[2],p[4]],"ArrayAsig")
         
 
 def p_posicionArreglo(p):
@@ -235,7 +261,7 @@ def p_posicionArreglo(p):
     if len(p) == 2:
         p[0] = Null()
     else:
-        p[0] = Node([TkOBlock(p[1]),Number(p[2]),Id(p[3])],"array index")
+        p[0] = Node([Token(str(p[2]),"Literal")],"EvalArray")
 
 
 ############ INSTRUCCION READ ##############
@@ -243,7 +269,7 @@ def p_posicionArreglo(p):
 # Regla gramatical para leer una variable
 def p_read(p):
     ''' read : TkRead TkId '''
-    p[0]=Node([Id(p[1]),Id(p[2])],"read")
+    p[0]=Node([Token(p[2],"Ident")],"Read")
 
 
 ############ INSTRUCCION PRINT ##############
@@ -253,7 +279,11 @@ def p_print(p):
     ''' print : TkPrint concatPrint 
               | TkPrintln concatPrint
     '''
-    p[0]=Node([Id(p[1]),p[2]],"print")
+    if p[1] == 'print':
+        p[0]=Node([p[2]],"Print")
+    else:
+        p[0]=Node([p[2]],"Println")
+
 
 # Regla gramatical para concatenar expresiones
 def p_concatPrint(p):
@@ -262,9 +292,9 @@ def p_concatPrint(p):
 
     '''
     if len(p) == 4:
-        p[0]=Node([p[1], CConcat(p[2]), p[3]], "concat")
+        p[0]=Node([p[1], p[3]], "Concat")
     else:
-        p[0] = Node([p[1]],"expresion")
+        p[0] = Node([p[1]])
 
 ###############################################
 ######### GRAMATICA PARA TIPOS DE VARIABLES ###
@@ -276,9 +306,9 @@ def p_tipo(p):
             | TkArray TkOBracket expresion TkSoForth expresion TkCBracket
     '''
     if len(p) == 2:
-        p[0]=Node([Id(p[1])], "tipo")
+        p[0]=Node([Token(p[1],None)],None)
     else:
-        p[0]=Node([array(p[1]),COBracket(p[2]),p[3], CSoForth(p[4]),p[5],CCBracket(p[6])],"tipo")
+        p[0]=Node([Token(p[1],None),p[3],p[5]],None)
 
 
 # Gramatica de lambda (token vacio)
@@ -298,20 +328,24 @@ def p_expresion(p):
     '''expresion : term
                  | addingOperator term
                  | expresion addingOperator term
+                 | embed
     '''
     if len(p) == 2:
-        p[0]=Node([p[1]], "expresion")
+        p[0]=Node([p[1]], "Exp")
     elif len(p) == 3:
-        p[0] = Node([p[1],p[2]],"expresion")
+        p[0] = Node([p[1],p[2]],"Exp")
     else:
-        p[0] = Node([p[1],p[2],p[3]],"expresion") 
+        p[0] = Node([p[1],p[2],p[3]],"Exp") 
 
 # Regla gramatical para operadores aritmeticos
 def p_addingOperator(p):
     '''addingOperator : TkPlus
                       | TkMinus
     '''
-    p[0]= Node([Plus(p[1])], "AddingOperator")
+    if p[1] == '+':
+        p[0]=Node(None, "Plus")
+    else:
+        p[0]=Node(None,"Minus")
 
 # Regla gramatical para simbolo de terminos
 def p_term(p):
@@ -319,9 +353,9 @@ def p_term(p):
             | term multiplyingOperator factor
     '''
     if len(p) == 2:
-        p[0] = Node([p[1]],"term")
+        p[0] = Node([p[1]], None)
     else:
-        p[0] = Node([p[1],p[2],p[3]],"term")
+        p[0] = Node([p[1],p[2],p[3]], None)
     
 # Regla gramatical para operadores multiplicativos
 def p_multiplyingOperator(p):
@@ -329,7 +363,12 @@ def p_multiplyingOperator(p):
                            | TkDiv
                            | TkMod
     '''
-    p[0] = Node([Mult(p[1])],"multiplyingOperator")
+    if p[1] == '*':
+        p[0]=Node(None, "Mult")
+    elif p[1] == '/':
+        p[0]=Node(None,"Div")
+    else:
+        p[0] = Node(None,"Mod")
     
 # Regla gramatical para expresiones de tipo factor:
 # variables, numericas, strings, funciones, booleanos
@@ -340,25 +379,33 @@ def p_factor(p):
               | TkString
               | TkTrue
               | TkFalse
-              | TkNot TkId
               | TkMinus TkNum
               | TkOpenPar expresion TkClosePar
               | TkId TkOBracket expresion TkCBracket
-              | TkNot TkId TkOBracket expresion TkCBracket
     '''
-    if len(p) == 2 and p[1]!="embed":
-        p[0] = Node([Number(p[1])],"factor")
-    elif len(p) == 2 and p[1] == "embed":
-        p[0] = Node([p[1]],"factor")
-    elif len(p) == 3:
-        p[0]=Node([Id(p[1]), Number(p[2])], "factor")
-    elif len(p) == 4:
-        p[0]=Node([Id(p[1]), p[2],Id(p[3])], "factor")        
-    elif len(p) == 5:
-        p[0]=Node([Id(p[1]), Id(p[2]),p[3],Id(p[4])], "factor")
-    elif len(p) == 6:
-        p[0]=Node([Id(p[1]),Id(p[2]), Id(p[3]),p[4],Id(p[5])], "factor")
+    # Caso en que es un numero, o true o false
+    if len(p) == 2 and (isinstance(p[1], int) or p[1] == 'true' or p[1] == 'false'):
+        p[0] = Node([Token(str(p[1]),"Literal")],None)
+    
+    # Caso en que es un string
+    elif len(p) == 2 and re.match('"([^"\\\n]|\\"|\\\\|\\n)*"',p[1]):
+        p[0] = Node([Token(p[1],"String")],None)
 
+    # Caso en que es un Id
+    elif len(p) == 2:
+        p[0] = Node([Token(p[1],"Ident")],None)
+    
+    # Caso en que es numero con simbolo menos delante
+    elif isinstance(p[2], int):
+        p[0] = Node([Token(str(p[1]),"Literal")],None)
+
+    # Caso en que es una expresion entre parentesis    
+    elif len(p) == 4:
+        p[0] = Node([p[2]],None)
+
+    # Caso en que es una expresion id[exp]
+    elif len(p) == 5:
+        p[0]=Node([Token(p[1],"Ident"),p[3]],None)
 
 # Regla gramatical para funciones embebidas
 def p_embed(p):
@@ -367,7 +414,15 @@ def p_embed(p):
              | TkAtoi TkOpenPar TkId TkClosePar
              | TkSize TkOpenPar TkId TkClosePar
     '''
-    p[0]=Node([CMax(p[1]),CMax(p[2]),CMax(p[3]), Id(p[4])], "embed")
+    if p[1] == 'max':
+        p[0]=Node([Token(p[3],"Ident")], "Max")
+    if p[1] == 'min':
+        p[0]=Node([Token(p[3],"Ident")], "Min")
+    if p[1] == 'atoi':
+        p[0]=Node([Token(p[3],"Ident")], "Atoi")
+    if p[1] == 'size':
+        p[0]=Node([Token(p[3],"Ident")], "Size")
+
 
 # Regla gramatical para el manejo de errores de sintaxis
 # Por defecto del parser
@@ -409,6 +464,6 @@ def traducir(result):
 parser=yacc.yacc()
 result = parser.parse(entrada)
 
-traducir(result)
+#traducir(result)
 
 result.imprimir(" ")
