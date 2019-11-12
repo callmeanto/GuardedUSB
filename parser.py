@@ -23,7 +23,7 @@ from AST import *
 # esta instruccion es la principal y deriva a bloque
 def p_program(p):
     '''program :  bloque'''
-    p[0] = program(p[1], "program")
+    p[0] = Node([p[1]], "program")
 
 
 # Funcion que describe la regla gramatical para la instruccion bloque
@@ -146,7 +146,7 @@ def p_operadorBool(p):
                     | TkOr
     
     '''
-    p[0]=Node([COr([p[1]])], "Bool")
+    p[0]=Node([COr(p[1])], "Bool")
 
 # Regla gramatical que define los simbolos de una relacion, 
 # deriva en los tokens definidos para el lenguaje
@@ -207,14 +207,25 @@ def p_listaExpresion(p):
     '''listaExpresion : listaExpresion TkComma expresion
                       | expresion
     '''
+    if len(p) == 2:
+        p[0] = Node([p[1]],"expresion")
+    else:
+        p[0]= Node([p[1],Comma(p[2]), p[3]], "expresion")
+
 
 def p_asignacionArreglos(p):
     '''asignacionArreglos : TkId listaIndices posicionArreglo'''
+    p[0] = Node([Id(p[1]),p[2],p[3]],"asignacionArreglos")
 
 def p_listaIndices(p):
     '''listaIndices : listaIndices TkOpenPar expresion TkTwoPoints expresion TkClosePar
                     | TkOpenPar expresion TkTwoPoints expresion TkClosePar
     '''
+    if len(p) == 7:
+        p[0] = Node([p[1],Id(p[2]),p[3], Id(p[4]), p[5], Id(p[6])],"listaIndices")
+    else:
+        p[0] = Node([Id(p[1]),p[2], Id(p[3]), p[4], Id(p[5])],"listaIndices")
+        
 
 def p_posicionArreglo(p):
     '''posicionArreglo : TkOBracket TkNum TkCBracket
@@ -223,7 +234,7 @@ def p_posicionArreglo(p):
     if len(p) == 2:
         p[0] = Null()
     else:
-        p[0] = Node([OBlock(p[1]),Id(p[2]),Id(p[3])],"array index")
+        p[0] = Node([TkOBlock(p[1]),Id(p[2]),Id(p[3])],"array index")
 
 
 ############ INSTRUCCION READ ##############
@@ -231,7 +242,7 @@ def p_posicionArreglo(p):
 # Regla gramatical para leer una variable
 def p_read(p):
     ''' read : TkRead TkId '''
-    p[0]=Node([Read(p[1]),Id(p[2])],"read")
+    p[0]=Node([Id(p[1]),Id(p[2])],"read")
 
 
 ############ INSTRUCCION PRINT ##############
@@ -340,13 +351,13 @@ def p_factor(p):
     elif len(p) == 2 and p[1] == "embed":
         p[0] = Node([p[1]],"factor")
     elif len(p) == 3:
-        p[0]=Node([CNot(p[1]), Id(p[2])], "factor")
+        p[0]=Node([Id(p[1]), Id(p[2])], "factor")
     elif len(p) == 4:
-        p[0]=Node([CNot(p[1]), p[2],Id(p[3])], "factor")        
+        p[0]=Node([Id(p[1]), p[2],Id(p[3])], "factor")        
     elif len(p) == 5:
-        p[0]=Node([CNot(p[1]), Id(p[2]),p[3],Id(p[4])], "factor")
+        p[0]=Node([Id(p[1]), Id(p[2]),p[3],Id(p[4])], "factor")
     elif len(p) == 6:
-        p[0]=Node([Id(p[1]),CNot(p[2]), Id(p[3]),p[4],Id(p[5])], "factor")
+        p[0]=Node([Id(p[1]),Id(p[2]), Id(p[3]),p[4],Id(p[5])], "factor")
 
 
 # Regla gramatical para funciones embebidas
