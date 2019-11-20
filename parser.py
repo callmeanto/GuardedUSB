@@ -88,9 +88,14 @@ def p_If(p):
     
     If : TkIf condicion TkArrow bloque variasGuardias TkFi
        | TkIf condicion TkArrow print variasGuardias TkFi
+       | TkIf TkOpenPar condicion TkClosePar TkArrow bloque variasGuardias TkFi
+       | TkIf TkOpenPar condicion TkClosePar TkArrow print variasGuardias TkFi
     
     '''
-    p[0]=Node([p[2], p[4], p[5]],"If")
+    if len(p) == 7:
+        p[0]=Node([p[2], p[4], p[5]],"If")
+    else:
+        p[0] = Node([p[3],p[6],p[7]],"If")
  
 # Regla gramatical que deriva de la instruccion If cuando hay mas de una guardia
 def p_variasGuardias(p):
@@ -128,23 +133,15 @@ def p_Do(p):
 def p_condicion(p):
     '''
     condicion : expresion
-              | operadorBool expresion
-              | expresion relacion expresion
               | condicion operadorBool expresion
-              | condicion operadorBool expresion relacion expresion
     '''
     # Caso en que solo hay una expresion
     if len(p)==2:
         p[0]=Node([p[1]], None)
-    # Caso en que la expresion tiene un booleando delante
-    if len(p) == 3:
-        p[0] = Node([p[1],p[2]],None)
     # Caso en que hay condicion operador y expresion/ expresion relacion expresion
     elif len(p)== 4:
         p[0]=Node([p[1],p[2],p[3]], None)
-    # Caso en que hay una combinacion de lo anterior
-    else:
-        p[0]=Node([p[1],p[2],p[3], p[4], p[5]], None)
+   
 
 # Regla gramatical para definir operadores booleanos
 def p_operadorBool(p):
@@ -328,13 +325,19 @@ def p_empty(p):
 def p_expresion(p):
     '''expresion : term
                  | addingOperator term
+                 | operadorBool expresion
                  | expresion addingOperator term
+                 | expresion relacion expresion
                  | embed
     '''
+    # Caso en que es un solo termino
     if len(p) == 2:
         p[0]=Node([p[1]], "Exp")
+    # Caso en que es un termino y un operador numerico / un bool y una expresion
     elif len(p) == 3:
         p[0] = Node([p[1],p[2]],"Exp")
+    elif len(p) == 4:
+        p[0] = Node([p[1],p[2],p[3]],"Exp")
     else:
         p[0] = Node([p[1],p[2],p[3]],"Exp") 
 
