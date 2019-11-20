@@ -116,9 +116,10 @@ def p_For(p):
 # Regla gramatical que deriva de la instruccion Do
 def p_Do(p):
     '''
-    Do : TkDo condicion TkArrow bloque TkOd
+    Do : TkDo condicion TkArrow bloque variasGuardias TkOd
+       | TkDo condicion TkArrow t variasGuardias TkOd
     '''
-    p[0]=Node([p[2],p[4]],"Do")
+    p[0]=Node([p[2], p[4], p[5]],"Do")
 
 # Regla gramatical para determinar condiciones
 # Una condicion puede ser de tipo expresion, 
