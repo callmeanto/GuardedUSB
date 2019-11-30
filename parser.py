@@ -7,6 +7,7 @@ from lexer import tokens
 import sys
 import os.path
 from AST import *
+from sym_table import *
 
 # GuardedUSB Interpreter
 # Segunda etapa: Analizador Sintactico
@@ -17,6 +18,23 @@ from AST import *
 # Descripcion: se implemento un lexer utilizando la libreria .ply de python, el siguiente programa recibe un archivo y retorna la lista de "tokens"
 # o elementos atomicos del lenguaje si pertenecen, o da un mensaje de error si
 # encuentra un caracter que no pertenece al lenguaje. Asi mismo, indica la posicion en donde se encuentra.
+
+
+# Inicializamos las estructuras a utilizar 
+# para chequeo de semantica
+
+
+
+# Utilizamos una pila para las tablas de simbolos
+stack_table = TableStack()
+
+# Utilizamos una pila para los iteradores
+stack_iterator = TableStack()
+
+
+#######################################
+###### CONSTRUCCION DE LA GRAMATICA ###
+#######################################
 
 
 # Funcion que describe la regla gramatical para la instruccion programa
@@ -30,7 +48,7 @@ def p_program(p):
 # Esta produccion deriva a t que es el contenido del programa / subprograma
 def p_bloque(p):
     '''bloque : TkOBlock t TkCBlock'''
-    p[0] = Node([p[2]], "Block")
+    p[0] = Node([p[2]],None)
 
 # Funcion que describe la regla gramatical que genera el contenido del programa
 # deriva en declaracion de variables + conjunto de secuenciacion de instrucciones
@@ -42,10 +60,123 @@ def p_t(p):
     '''
     # Caso en que hay declaraciones y luego secuenciacion de instrucciones
     if len(p) == 3: 
-        p[0] = Node([p[1], p[2]],None)
+        p[0] = [p[1], p[2]]
     # Caso en que solo hay secuenciacion de instrucciones
     else: 
+        p[0] = [p[1]]
+
+
+# Gramatica para declaracion de variables #
+def p_declaracionVariables(p):
+    '''declaracionVariables : TkDeclare declaracionSemicolon'''
+    p[0]=[p[2]]
+
+# Regla gramatical para cuando la declaracion es predecida por una declaracion
+# separada por punto y coma
+def p_declaracionSemicolon(p):
+    '''declaracionSemicolon : declaracionSemicolon TkSemicolon declaracion
+                            | declaracion
+    '''
+    if len(p) == 2:
+        p[0]=[p[1]]   
+    else:
+        p[0]=[p[1],p[3]]
+
+# Declaracion multiple de varios tipos en una misma linea de instruccion	
+def p_declaracion(p):
+    '''declaracion : TkId TkComma declaracion TkComma tipo
+                   | TkId TkTwoPoints tipo
+    '''
+    # No Recursivo
+    if p[2] == ':':
+        p[0] = SymbolTable()
+
+        for i in p[1]:
+            # Si el elemento al que deriva tipo es TkArray
+            if p[3][0] == 'array':
+        
+                # Verificamos que las cotas esten correctas
+                if p[3][1] > p[3][2] :
+                    print('Error estatico: El limite inferior del arreglo debe ser menor que el superior')
+                    sys.exit()
+
+                arr = []
+
+                # Inicializamos el arreglo
+                # Calculamos la longitud del mismo
+                arrlen = abs(abs(p[3][1]) - abs(p[3][2])) + 1
+                
+                for k in range(arrlen + 1):
+                    arr += [None]
+
+                # Insertamos en la tabla el tipo con la longitud del arreglo
+                # y los valores iniciales
+                p[0].push_symbol(i, [p[3][0], arrlen],arr)
+
+            else:
+                p[0].push_symbol(i, p[3], None)
+     
+    elif len(p) == 6:
+        p[0] = p[3]
+
+        for i in p[1]:
+            p[0].push_symbol(i,p[5])
+   
+    stack_table.push(p[0])
+
+    # Viejo
+    '''
+    if len(p) == 6:
+        p[0]=Node([Token(p[1],"ENTTRO"), p[3]],None)
+    if p[2] == ':':
+        p[0]=Node([Token(p[1],"Ident")],None)
+    else:
+        p[0]=Node([Token(p[1],"Variosids1"),p[3]],None)
+
+    '''
+
+
+# Gramatica para asignacion de variables
+def p_asignacion(p):
+    '''asignacion : TkId TkAsig listaExpresion
+                  | TkId TkAsig asignacionArreglos
+    '''
+
+    p[0]= Node([Token(p[1],"Ident"), p[3]], "Asig")
+
+def p_listaExpresion(p):
+    '''listaExpresion : listaExpresion TkComma expresion
+                      | expresion
+    '''
+    if len(p) == 2:
         p[0] = Node([p[1]],None)
+    else:
+        p[0]= Node([p[1], p[3]], None)
+
+
+def p_asignacionArreglos(p):
+    '''asignacionArreglos : TkId listaIndices posicionArreglo'''
+    p[0] = Node([Token(p[1],"Ident"),p[2],p[3]],"ArrayAsig")
+
+def p_listaIndices(p):
+    '''listaIndices : listaIndices TkOpenPar expresion TkTwoPoints expresion TkClosePar
+                    | TkOpenPar expresion TkTwoPoints expresion TkClosePar
+    '''
+    if len(p) == 7:
+        p[0] = Node([p[1],p[3], p[5]],"ArrayAsig")
+    else:
+        p[0] = Node([p[2],p[4]],"ArrayAsig")
+        
+
+def p_posicionArreglo(p):
+    '''posicionArreglo : TkOBracket TkNum TkCBracket
+                       | empty
+    '''
+    if len(p) == 2:
+        p[0] = Null()
+    else:
+        p[0] = Node([Token(str(p[2]),"Literal")],"EvalArray")
+
 
 # Funcion que describe la regla gramatical que genera una instruccion
 # una instruccion puede ser una secuencia de instrucciones o una sola instruccion
@@ -189,79 +320,6 @@ def p_relacion(p):
 ###########################################
 
 
-# Gramatica para declaracion de variables #
-def p_declaracionVariables(p):
-    '''declaracionVariables : TkDeclare declaracionSemicolon'''
-    p[0]=Node([p[2]],"declare")
-
-# Regla gramatical para cuando la declaracion es predecida por una declaracion
-# separada por punto y coma
-def p_declaracionSemicolon(p):
-    '''declaracionSemicolon : declaracionSemicolon TkSemicolon declaracion
-                            | declaracion
-    
-    '''
-    if len(p) == 2:
-        p[0]=Node([p[1]],None)   
-    else:
-        p[0]=Node([p[1],Token(None,"Sequencing"),p[3]],None)
-
-# Declaracion multiple de varios tipos en una misma linea de instruccion	
-def p_declaracion(p):
-    '''declaracion : TkId TkComma declaracion TkComma tipo
-                   | TkId TkTwoPoints tipo
-                   | TkId TkComma declaracion
-    '''
-    if len(p) == 6:
-        p[0]=Node([Token(p[1],"Ident"), p[3]],None)
-    if p[2] == ':':
-        p[0]=Node([Token(p[1],"Ident")],None)
-    else:
-        p[0]=Node([Token(p[1],"Ident"),p[3]],None)
-    
-
-# Gramatica para asignacion de variables
-def p_asignacion(p):
-    '''asignacion : TkId TkAsig listaExpresion
-                  | TkId TkAsig asignacionArreglos
-    '''
-
-    p[0]= Node([Token(p[1],"Ident"), p[3]], "Asig")
-
-def p_listaExpresion(p):
-    '''listaExpresion : listaExpresion TkComma expresion
-                      | expresion
-    '''
-    if len(p) == 2:
-        p[0] = Node([p[1]],None)
-    else:
-        p[0]= Node([p[1], p[3]], None)
-
-
-def p_asignacionArreglos(p):
-    '''asignacionArreglos : TkId listaIndices posicionArreglo'''
-    p[0] = Node([Token(p[1],"Ident"),p[2],p[3]],"ArrayAsig")
-
-def p_listaIndices(p):
-    '''listaIndices : listaIndices TkOpenPar expresion TkTwoPoints expresion TkClosePar
-                    | TkOpenPar expresion TkTwoPoints expresion TkClosePar
-    '''
-    if len(p) == 7:
-        p[0] = Node([p[1],p[3], p[5]],"ArrayAsig")
-    else:
-        p[0] = Node([p[2],p[4]],"ArrayAsig")
-        
-
-def p_posicionArreglo(p):
-    '''posicionArreglo : TkOBracket TkNum TkCBracket
-                       | empty
-    '''
-    if len(p) == 2:
-        p[0] = Null()
-    else:
-        p[0] = Node([Token(str(p[2]),"Literal")],"EvalArray")
-
-
 ############ INSTRUCCION READ ##############
 
 # Regla gramatical para leer una variable
@@ -301,12 +359,12 @@ def p_concatPrint(p):
 def p_tipo(p):
     '''tipo : TkBool
             | TkInt
-            | TkArray TkOBracket expresion TkSoForth expresion TkCBracket
+            | TkArray TkOBracket TkNum TkSoForth TkNum TkCBracket
     '''
     if len(p) == 2:
-        p[0]=Node([Token(p[1],None)],None)
+        p[0]=p[1]
     else:
-        p[0]=Node([Token(p[1],None),p[3],p[5]],None)
+        p[0]=[p[1],p[3],p[5]]
 
 
 # Gramatica de lambda (token vacio)
@@ -464,10 +522,16 @@ def traducir(result):
     graphFile.write(result.traducir())
     graphFile.close()
 
+
 # Que se haga la magia
 parser=yacc.yacc()
 result = parser.parse(entrada)
 
 #traducir(result)
 
-result.imprimir(" ")
+#result.imprimir(" ")
+
+print("TABLA DE SIMBOLOS")
+
+print(stack_table.top().table) 
+
