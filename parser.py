@@ -56,7 +56,7 @@ def p_bloque(p):
 def p_t(p):
     '''
     t : casoInstrucciones
-      | declaracionVariables casoInstrucciones
+      | TkDeclare declaracionVariables casoInstrucciones
     '''
     # Caso en que hay declaraciones y luego secuenciacion de instrucciones
     if len(p) == 3: 
@@ -68,47 +68,43 @@ def p_t(p):
 
 # Gramatica para declaracion de variables #
 def p_declaracionVariables(p):
-    '''declaracionVariables : TkDeclare listaDeclaraciones TkTwoPoints tipos TkSemicolon declaracionVariables
-                            | TkDeclare listaDeclaraciones TkTwoPoints tipos
+    '''declaracionVariables : listaDeclaraciones TkTwoPoints tipos TkSemicolon declaracionVariables
+                            | listaDeclaraciones TkTwoPoints tipos
     '''
     # No Recursivo
-    if len(p) == 5:
+    if len(p) == 4:
         p[0] = SymbolTable()
 
-        j = 0
-        for i in p[2]:
-            
-            # Si el elemento al que deriva tipo es TkArray
-            
-            if p[4][j][0] == 'array':
-                # Verificamos que las cotas esten correctas
-                if p[4][0][1] > p[4][0][2] :
-                    print('Error estatico: El limite inferior del arreglo debe ser menor que el superior')
-                    sys.exit()
-
-                arr = []
-
-                # Inicializamos el arreglo
-                # Calculamos la longitud del mismo
-                arrlen = abs(abs(p[4][j][1]) - abs(p[4][j][2])) + 1
-                
-                for k in range(arrlen):
-                    arr += [None]
-
-                # Insertamos en la tabla el tipo con la longitud del arreglo
-                # y los valores iniciales
-                p[0].push_symbol(i, [p[4][j][0], arrlen],arr)
-
-            else:
-                p[0].push_symbol(i, p[4][j], None)
-            j+=1
-     
+    # Recursivo
     else:
-        p[0] = p[6]
+        p[0] = p[5]
 
-        for i in p[2]:
-            p[0].push_symbol(i,p[4][0])
-   
+    j = 0
+    for i in p[1]:
+        # Si el elemento al que deriva tipo es TkArray
+        if p[3][j][0] == 'array':
+            # Verificamos que las cotas esten correctas
+            if p[3][j][1] > p[3][j][2] :
+                print('Error estatico: El limite inferior del arreglo debe ser menor que el superior')
+                sys.exit()
+
+            arr = []
+
+            # Inicializamos el arreglo
+            # Calculamos la longitud del mismo
+            arrlen = abs(abs(p[3][j][1]) - abs(p[3][j][2])) + 1
+            
+            for k in range(arrlen):
+                arr += [None]
+
+            # Insertamos en la tabla el tipo con la longitud del arreglo
+            # y los valores iniciales
+            p[0].push_symbol(i, [p[3][j][0], arrlen],arr)
+
+        else:
+            p[0].push_symbol(i, p[3][j])
+        j+=1
+    
     stack_table.push(p[0])
 
 
