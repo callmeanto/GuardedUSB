@@ -92,14 +92,14 @@ def p_declaracionVariables(p):
 
             # Inicializamos el arreglo
             # Calculamos la longitud del mismo
-            arrlen = abs(abs(p[3][j][1]) - abs(p[3][j][2])) + 1
+            arrlen = abs(p[3][j][2]-p[3][j][1]) + 1
             
             for k in range(arrlen):
                 arr += [None]
 
             # Insertamos en la tabla el tipo con la longitud del arreglo
             # y los valores iniciales
-            p[0].push_symbol(i, [p[3][j][0], arrlen],arr)
+            p[0].push_symbol(i, [p[3][j], arrlen],arr)
 
         else:
             p[0].push_symbol(i, p[3][j])
@@ -371,13 +371,23 @@ def p_concatPrint(p):
 def p_tipo(p):
     '''tipo : TkBool
             | TkInt
-            | TkArray TkOBracket TkNum TkSoForth TkNum TkCBracket
+            | TkArray TkOBracket number TkSoForth number TkCBracket
     '''
     if len(p) == 2:
         p[0]=p[1]
     else:
         p[0]=[p[1],p[3],p[5]]
 
+# Gramatica para literal numero (entero positivo o negativo)
+def p_number(p):
+    '''
+        number : TkNum
+               | TkMinus TkNum
+    '''
+    if len(p) == 2:
+        p[0] = int(p[1])
+    else:
+        p[0] = int(p[1] + str(p[2]))
 
 # Gramatica de lambda (token vacio)
 def p_empty(p):
