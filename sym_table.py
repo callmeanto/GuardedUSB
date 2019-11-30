@@ -1,6 +1,8 @@
-from stack import *
+import sys
 
 # Mensajes de error
+
+
 def p_error(id):
     # codigo de error para pila vacia
     if id == 0:
@@ -9,92 +11,88 @@ def p_error(id):
     # codigo de error para cuando hay underflow
     if id == 1:
         return "Stack Underflow: Couldn't delete scope"
-    
 
 
-# Clase para tabla de simbolos, con sus respectivos metodos
 class SymbolTable:
 
-    # Constructor de la clase cuyo
-    # unico atributo es table
-    def __init__(self):
-        self.table = Stack()
+    # Constructor de la table de simbolos
+    # El argumento table superior contendra un objeto del tipo table de simbolo
+    # y este sera justamente la table del scope inmediatamente superior
+    def __init__(self, table_superior=None):
+        self.table = {}
+        self.table_anterior = table_superior
 
-    # Insertar scope: insertar una nueva tabla en la pila
-    # en la pila, utilizando push
-    def insert_scope(self):
-        self.table.push({})
-
-    # Eliminar scope: eliminar tabla de la pila
-    def delete_scope(self):
-        # Verificamos si no esta vacia la pila
-        if not self.table.isEmpty():
-            self.table.pop()
-        # Si esta vacia, arrojamos una excepcion
+    # Agrega simbolos a la table anadir_table
+    def push_symbol(self, id,  tipo, valor=None):
+        if not self.exists_table(id):
+            self.table[id] = [tipo, valor]
         else:
-            raise Exception(p_error(1))
+            print("Error, la variable " + id + " ya ha sido declarada")
+            sys.exit()
 
-    # Insertar una entrada (en tabla): si la pila no esta vacia, 
-    # agrega el parametro value en la posicion 'key' tabla que esta en el tope de la pila 
-    def insert(self, key, value):
+    '''# Funcion que modifica el valor del simbolo
+    def modificar_table(self, id, valor):
+        if not self.existe_table(id):
+            print("Error, la variable "+ id + " no ha sido declarada")
+        else:
+            self.table[id][1] = valor'''
 
-        # Si no esta vacia la pila, se puede hacer el insert
-        if not self.table.isEmpty():
+    # Funcion que se encargara de verificar si el simbolo ya existe en la table
+    def exists_table(self, id):
+        if self.table.get(id) == None:
+            return False
+        else:
+            return self.table[id]
 
-            # Obtenemos la tabla tope de la lista
-            current_table = self.table.top()
 
-            # Si no existe tal entrada en la tabla, se agrega
-            # en la posicion 'key' de la tabla
-            if not key in current_table:
-                current_table[key] = value
-                return True
+# Implementacion de la clase Pila (de tables de simbolos)
+# con sus respectivas operaciones
+class TableStack:
 
-            # Si ya existia, se retorna False    
+    # Constructor de la clase
+    def __init__(self):
+        self.stack = []
+        self.head = 0
+
+    # Insertar en la pila una nueva table
+
+    def push(self, table):
+        self.stack.append(table)
+        self.head = len(self.stack) - 1
+
+    # ELiminar table de la piña
+    def pop(self):
+        if not self.empty:
+            return self.stack.pop()
+        else:
+            p_error(1)
+
+    # Consultar el tope de la pila
+    def top(self):
+        return self.stack[len(self.stack) - 1]
+
+    # Consultar si un elemento esta en alguna de las tables de la pila
+    def is_in_table(self, id):
+
+        if not self.empty():
+            for i in range(len(self.stack) - 1, -1, -1):
+                if self.stack[i].exists_table(id) != False:
+                    return self.stack[i].exists_table(id)
             return False
 
-        # Si la pila esta vacia, se arroja una excepcion
-        raise Exception(p_error(0))
+        # Pila vacia
+        return p_error(1)
 
-    # Query: consulta a la pila 
-    # Hacemos una consulta en la pila completa desde el fondo
-    # asi revisamos desde el scope mas amplio
-    def query(self, key):
+    # Modificar algun valor de la pila
+    def modify_symbol(self, id, valor, indexacion=None):
+        x = self.is_in_table(id)
+        if not x:
+            print("Error, variable " + id + " no declarada")
+            sys.exit()
+        if indexacion == None:
+            x[1] = valor
+        else:
+            x[1][indexacion] = valor
 
-        # Verificamos que la pila no este vacia
-        if not self.table.isEmpty():
-
-            # Iteramos sobre todas las tablas en la pila
-            for i in range(self.table.size() - 1, -1, -1):
-                aux = self.table.get_level(i)
-                result = self._isInTable(aux, key)
-                if result != None:
-                     return result
-
-        raise Exception(p_error(0))
-
-    def _isInTable(self, hash_, key):
-        try:
-            return hash_[key]
-        except:
-            return None
-
-
-    # Metodo para asignacion de un nuevo valor a una variable
-    def modificar(self, key, valor):
-        if not self.table.isEmpty():
-            for i in range(self.table.size() - 1, -1, -1):
-                aux = self.table.get_level(i)
-                result = self._isInTable(aux, key)
-                if result is not None:
-                    aux[key] = valor
-
-    # Metodo para imprimir bonitico el nivel actual de estado de las variables
-    def __str__(self):
-        if not self.table.isEmpty():
-            aux1 = ''
-            for i in range(self.table.size() - 1, -1, -1):
-                aux = self.table.get_level(i)
-                aux1 += str(i) + ') ' + str(aux) + '\n'
-            return aux1
-        return ''
+    def empty(self):
+        return self.pila == []
