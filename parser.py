@@ -68,35 +68,21 @@ def p_t(p):
 
 # Gramatica para declaracion de variables #
 def p_declaracionVariables(p):
-    '''declaracionVariables : TkDeclare declaracionSemicolon'''
-    p[0]=[p[2]]
-
-# Regla gramatical para cuando la declaracion es predecida por una declaracion
-# separada por punto y coma
-def p_declaracionSemicolon(p):
-    '''declaracionSemicolon : declaracionSemicolon TkSemicolon declaracion
-                            | declaracion
-    '''
-    if len(p) == 2:
-        p[0]=[p[1]]   
-    else:
-        p[0]=[p[1],p[3]]
-
-# Declaracion multiple de varios tipos en una misma linea de instruccion	
-def p_declaracion(p):
-    '''declaracion : TkId TkComma declaracion TkComma tipo
-                   | TkId TkTwoPoints tipo
+    '''declaracionVariables : TkDeclare listaDeclaraciones TkTwoPoints tipos TkSemicolon declaracionVariables
+                            | TkDeclare listaDeclaraciones TkTwoPoints tipos
     '''
     # No Recursivo
-    if p[2] == ':':
+    if len(p) == 5:
         p[0] = SymbolTable()
 
-        for i in p[1]:
+        j = 0
+        for i in p[2]:
+            
             # Si el elemento al que deriva tipo es TkArray
-            if p[3][0] == 'array':
-        
+            
+            if p[4][j][0] == 'array':
                 # Verificamos que las cotas esten correctas
-                if p[3][1] > p[3][2] :
+                if p[4][0][1] > p[4][0][2] :
                     print('Error estatico: El limite inferior del arreglo debe ser menor que el superior')
                     sys.exit()
 
@@ -104,37 +90,49 @@ def p_declaracion(p):
 
                 # Inicializamos el arreglo
                 # Calculamos la longitud del mismo
-                arrlen = abs(abs(p[3][1]) - abs(p[3][2])) + 1
+                arrlen = abs(abs(p[4][j][1]) - abs(p[4][j][2])) + 1
                 
-                for k in range(arrlen + 1):
+                for k in range(arrlen):
                     arr += [None]
 
                 # Insertamos en la tabla el tipo con la longitud del arreglo
                 # y los valores iniciales
-                p[0].push_symbol(i, [p[3][0], arrlen],arr)
+                p[0].push_symbol(i, [p[4][j][0], arrlen],arr)
 
             else:
-                p[0].push_symbol(i, p[3], None)
+                p[0].push_symbol(i, p[4][j], None)
+            j+=1
      
-    elif len(p) == 6:
-        p[0] = p[3]
+    else:
+        p[0] = p[6]
 
-        for i in p[1]:
-            p[0].push_symbol(i,p[5])
+        for i in p[2]:
+            p[0].push_symbol(i,p[4][0])
    
     stack_table.push(p[0])
 
-    # Viejo
-    '''
-    if len(p) == 6:
-        p[0]=Node([Token(p[1],"ENTTRO"), p[3]],None)
-    if p[2] == ':':
-        p[0]=Node([Token(p[1],"Ident")],None)
+
+
+def p_tipos(p):
+    """
+    tipos : tipo TkComma tipos
+          | tipo
+    """
+    if len(p) == 4:
+        p[0] = p[3] + [p[1]]
     else:
-        p[0]=Node([Token(p[1],"Variosids1"),p[3]],None)
+        p[0] = [p[1]]
 
+# Declaracion multiple de varios tipos en una misma linea de instruccion	
+def p_listaDeclaraciones(p):
+    '''listaDeclaraciones : TkId TkComma listaDeclaraciones
+                          | TkId
     '''
-
+    if len(p) == 2:
+        p[0] = [p[1]]
+    else:
+        p[0] = p[3] + [p[1]]    
+   
 
 # Gramatica para asignacion de variables
 def p_asignacion(p):
@@ -533,5 +531,7 @@ result = parser.parse(entrada)
 
 print("TABLA DE SIMBOLOS")
 
-print(stack_table.top().table) 
+#print(stack_table.top().table) 
 
+for i in stack_table.stack:
+    print(i.table) 
