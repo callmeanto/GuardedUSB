@@ -105,6 +105,7 @@ def p_declaracionVariables(p):
             p[0].push_symbol(i, p[3][j])
         j+=1
     
+    # Insertamos la tabla
     stack_table.push(p[0])
 
 
@@ -197,12 +198,19 @@ def p_Instruccion(p):
     Instruccion : If
                 | For
                 | Do
-                | asignacion
-                | read
-                | print
+                | singleInstruccion
     
     '''
 
+    p[0]=Node([p[1]],"Sequencing")
+
+# Instrucciones de una sola linea
+def p_singleInstruccion(p):
+    '''
+    singleInstruccion : asignacion
+                      | read
+                      | print
+    '''
     p[0]=Node([p[1]],"Sequencing")
 
 
@@ -212,9 +220,11 @@ def p_If(p):
     '''
     
     If : TkIf condicion TkArrow bloque variasGuardias TkFi
-       | TkIf condicion TkArrow print variasGuardias TkFi
+       | TkIf condicion TkArrow singleInstruccion variasGuardias TkFi
+       | TkIf condicion TkArrow expresion variasGuardias TkFi
        | TkIf TkOpenPar condicion TkClosePar TkArrow bloque variasGuardias TkFi
-       | TkIf TkOpenPar condicion TkClosePar TkArrow print variasGuardias TkFi
+       | TkIf TkOpenPar condicion TkClosePar TkArrow singleInstruccion variasGuardias TkFi
+       | TkIf TkOpenPar condicion TkClosePar TkArrow expresion variasGuardias TkFi
     
     '''
     if len(p) == 7:
@@ -247,9 +257,17 @@ def p_For(p):
 def p_Do(p):
     '''
     Do : TkDo condicion TkArrow bloque variasGuardias TkOd
-       | TkDo condicion TkArrow t variasGuardias TkOd
+       | TkDo condicion TkArrow singleInstruccion variasGuardias TkOd
+       | TkDo condicion TkArrow expresion variasGuardias TkOd
+       | TkDo TkOpenPar condicion TkClosePar TkArrow bloque variasGuardias TkOd
+       | TkDo TkOpenPar condicion TkClosePar TkArrow singleInstruccion variasGuardias TkOd
+       | TkDo TkOpenPar condicion TkClosePar TkArrow expresion variasGuardias TkOd
+
     '''
-    p[0]=Node([p[2], p[4], p[5]],"Do")
+    if len(p)== 7:
+        p[0]=Node([p[2], p[4], p[5]],"Do")
+    else:
+        p[0] = Node([p[3],p[6],p[7]],"Do")
 
 # Regla gramatical para determinar condiciones
 # Una condicion puede ser de tipo expresion, 
