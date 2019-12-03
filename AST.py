@@ -1,3 +1,6 @@
+import sys
+
+
 # GuardedUSB Interpreter
 # Segunda etapa: Analizador Sintactico
 # Lenguaje de implementacion del Interprete: Python 3
@@ -59,20 +62,26 @@ class program():
 class Node():
 
     # Constructor de la clase
-    def __init__(self, sons=None, name=None):
+    def __init__(self, sons=None, name=None,type=None):
         self.name = name
         self.sons = sons
+        self.type = type 
 
     # Metodo para imprimir la gramatica
     def imprimir(self, ident):
-        if(self.name != None):
-            print(ident+self.name)
 
-        if(self.sons != None):
-            for i in range(len(self.sons)):
-                if(self.sons[i] == None):
-                    continue
-                self.sons[i].imprimir(" "+ident)
+        if (self.name == "Declare"):
+            self.sons[-1].printTable()
+
+        else:
+            if(self.name != None):
+                print(ident+self.name)
+
+            if(self.sons != None):
+                for i in range(len(self.sons)):
+                    if(self.sons[i] == None):
+                        continue
+                    self.sons[i].imprimir(" "+ident)
 
     # Metodo para traducir simbolo no terminal o terminal en el arbol
     def traducir(self):
@@ -91,15 +100,15 @@ class Node():
 # Clase especial unicamente para simbolos terminales que
 # se imprimen, como los Id, Literales y strings 
 class Token():
-    def __init__(self, token=None, label=None):
+    def __init__(self, token=None, name=None):
         self.token = token
-        self.label = label
+        self.name = name
 
     def imprimir(self, ident):
         if self.token != None:
-            print(ident+self.label+": "+self.token)
+            print(ident+self.name+": "+self.token)
         else: 
-            print(ident+self.label)
+            print(ident+self.name)
 
     def traducir(self):
         global txt
@@ -108,3 +117,59 @@ class Token():
             txt += id + "[label= \""+self.token+"\"]"+"\n\t"
 
         return id
+
+
+
+# Metodo para recorrer el arbol hasta llegar a una hoja
+def get_children2(t):
+    children = []
+    # Si es una hoja
+    if isinstance(t,Token):
+        children.append(t.token)
+    else:
+        while(len(t.sons)>1):
+            children.append(t.sons[0].token)
+            t = t.sons[1]
+        return children
+
+children = []
+def get_children(t,first):
+    global children
+    if first and children != []: children = []
+    if isinstance(t,Token):
+        children.append(t.token)
+
+    elif isinstance(t.sons[0],Token):
+        children.append(t.sons[0].token)
+
+    elif (len(t.sons)>1):
+        for i in range(len(t.sons)):
+            if isinstance(t.sons[i],Token):
+                children.append(t.sons[i].token)
+            if(t.sons[i] == None):
+                continue
+            get_children(t.sons[i],False)
+    return children
+
+
+
+
+
+# Metodo para contar cantidad de hojas en el sub arbol sintactico
+# Metodo auxiliar para saber cuantos nodos terminales
+# hay en una derivacion
+count = 0
+def leaf_count(t,first):
+    global count
+    if first and count != 0: count = 0
+    for son in t.sons:
+        if (son.name == "Literal" and son.type != 'int') or (son.name == "Ident"):
+            print("Error: los arreglos deben ser de tipo entero")
+            sys.exit()
+        if son.name == "Literal":
+            # llegamos a una hoja
+            count += 1            
+        else:
+            # hay que seguir recorriendo
+            leaf_count(son,False)
+    return count

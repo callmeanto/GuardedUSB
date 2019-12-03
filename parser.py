@@ -50,6 +50,8 @@ def p_bloque(p):
     '''bloque : TkOBlock t TkCBlock'''
     p[0] = Node([p[2]],None)
 
+    stack_table.pop()
+    
 # Funcion que describe la regla gramatical que genera el contenido del programa
 # deriva en declaracion de variables + conjunto de secuenciacion de instrucciones
 # o solo conjunto de instrucciones
@@ -59,66 +61,73 @@ def p_t(p):
       | TkDeclare declaracionVariables casoInstrucciones
     '''
     # Caso en que hay declaraciones y luego secuenciacion de instrucciones
-    if len(p) == 3: 
-        p[0] = [p[1], p[2]]
+    if len(p) == 4: 
+        p[0] = Node([p[2],p[3]],None)
     # Caso en que solo hay secuenciacion de instrucciones
     else: 
-        p[0] = [p[1]]
-
+        p[0] = Node([p[1]],None)
+    
 
 # Gramatica para declaracion de variables #
 def p_declaracionVariables(p):
     '''declaracionVariables : listaDeclaraciones TkTwoPoints tipos TkSemicolon declaracionVariables
                             | listaDeclaraciones TkTwoPoints tipos
     '''
+    aux_table = SymbolTable()
+
     # No Recursivo
     if len(p) == 4:
-        p[0] = SymbolTable()
+        p[0] = Node([p[1],p[3],aux_table],"Declare",None)
 
     # Recursivo
     else:
-        p[0] = p[5]
+        #print("ENTRE")
+        p[0] = Node([p[1],p[3],p[5],aux_table],"Declare",None)
+        #p[0] = p[5]
 
-    j = 0
-    for i in p[1]:
+    for i in get_children2(p[1]):
+
+        children = get_children(p[3],True)
+
         # Si el elemento al que deriva tipo es TkArray
-        if p[3][j][0] == 'array':
+        if children.pop(0) != 'int' and children.pop(0) != 'bool' :
             # Verificamos que las cotas esten correctas
-            if p[3][j][1] > p[3][j][2] :
-                print('Error estatico: El limite inferior del arreglo debe ser menor que el superior')
+            if children.pop(0)[1] > children.pop(0)[2] :
+                print('Error: El limite inferior del arreglo ' + i +' debe ser menor que el superior')
                 sys.exit()
 
             arr = []
-
-            # Inicializamos el arreglo
-            # Calculamos la longitud del mismo
-            arrlen = abs(p[3][j][2]-p[3][j][1]) + 1
+            # Inicializamos el arreglo, calculamos la longitud del mismo
+            arrlen = abs(children.pop(0)[2] - children.pop(0)[1]) + 1
             
-            for k in range(arrlen):
-                arr += [None]
-
-            # Insertamos en la tabla el tipo con la longitud del arreglo
+            arr = [None for k in range(arrlen)]
+        
+            # Insertamos en la tabla el tipo con las cotas del arreglo y la longitud del arreglo
             # y los valores iniciales
-            p[0].push_symbol(i, [p[3][j], arrlen],arr)
+            # este metodo ya verifica si la variable ha sido declarada
+            aux_table.push_symbol(i, [children.pop(0), arrlen],arr)
 
         else:
-            p[0].push_symbol(i, p[3][j])
-        j+=1
+            aux_table.push_symbol(i, children.pop(0))
     
     # Insertamos la tabla
-    stack_table.push(p[0])
+    stack_table.push(aux_table)
+
+    # Imprimimos la tabla
+    #aux_table.printTable()
+    
 
 
-
+    
 def p_tipos(p):
     """
     tipos : tipo TkComma tipos
           | tipo
     """
     if len(p) == 4:
-        p[0] = p[3] + [p[1]]
+        p[0] = Node([p[1], p[3]],"tipos",None)
     else:
-        p[0] = [p[1]]
+        p[0] = Node([p[1]],None,None)
 
 # Declaracion multiple de varios tipos en una misma linea de instruccion	
 def p_listaDeclaraciones(p):
@@ -126,32 +135,73 @@ def p_listaDeclaraciones(p):
                           | TkId
     '''
     if len(p) == 2:
-        p[0] = [p[1]]
+        p[0] = Node([Token(p[1],"Ident")])
     else:
-        p[0] = p[3] + [p[1]]    
+        p[0] = Node([Token(p[1],"Ident"),p[3]])    
    
 
 # Gramatica para asignacion de variables
 def p_asignacion(p):
-    '''asignacion : TkId TkAsig listaExpresion
+    '''asignacion : TkId TkAsig expresion
+                  | TkId TkAsig listaExpresion
                   | TkId TkAsig asignacionArreglos
     '''
-
     p[0]= Node([Token(p[1],"Ident"), p[3]], "Asig")
 
+    # p[0] = [p[1],p[3],"Asig"]
+
+    
+    value = stack_table.is_in_table(p[0].sons[0].token)
+    # Verificamos que la variable a asignar ya fue declarada
+    if value is False:
+        print("La variable " + p[0].sons[0].token + " esta intentando ser asignada pero no fue declarada")
+        sys.exit()
+
+    # Verificamos el tipo de las variables
+    # Es porque es de tipo arreglo con asignacion por lista
+    try:
+        if value[0][0][0] == 'array' and p[3].sons[0].name == 'listaExpresion':
+
+            # Contemos la cantidad de elementos en listaExpresion
+            count1 = leaf_count(p[3],True)
+
+            # Si el length del arreglo es menor al length de la lista de expresiones
+            if int(value[0][1]) < count1:
+                print("Error: indice del arreglo '"+ p[0][0][0] +"' fuera del rango")
+                sys.exit()
+
+        else:
+            # Es porque es de tipo bool o int
+            # Primero verificamos que no se le esten asignando mas de una expresion a los tipos basicos
+            if p[3].name == 'listaExpresion':
+                print("Error: no puede asignarle a la variable '" + p[0][0][0] +"' mas de una expresion porque tiene un tipo de dato basico")
+                sys.exit()
+            
+            if not(value[0] == p[3].sons[0].sons[0].type):
+                print("Error: la variable '"+p[0][0][0] +"' es de tipo '"+ value[0] +"', no se le puede asignar algo de tipo '" + p[3].sons[0].sons[0].type +"'" )
+                sys.exit()
+    except: pass
+
+# Gramatica para lista de expresiones a asignar en arreglos y variables
 def p_listaExpresion(p):
     '''listaExpresion : listaExpresion TkComma expresion
                       | expresion
     '''
     if len(p) == 2:
         p[0] = Node([p[1]],None)
+        
     else:
-        p[0]= Node([p[1], p[3]], None)
-
-
+        p[0]= Node([p[1], p[3]], "listaExpresion")
+        
+# Gramatica para asignacion de arreglos
 def p_asignacionArreglos(p):
     '''asignacionArreglos : TkId listaIndices posicionArreglo'''
     p[0] = Node([Token(p[1],"Ident"),p[2],p[3]],"ArrayAsig")
+    # p[0] = [p[1],p[2],p[3]]
+
+    # Verificamos que TkId sea de tipo array y este en la tabla
+    value = stack_table.is_in_table(p[0].sons[0].token)
+
 
 def p_listaIndices(p):
     '''listaIndices : listaIndices TkOpenPar expresion TkTwoPoints expresion TkClosePar
@@ -252,6 +302,24 @@ def p_For(p):
     For : TkFor TkId TkIn expresion TkTo expresion TkArrow bloque TkRof
     '''
     p[0]=Node([Token(p[2],"Ident"),Token(None,"In"),p[4],p[6],p[8]], "For") 
+    
+    aux_table = SymbolTable()
+
+    # Verificamos si la variable de control ya fue declarada, sino
+    # la agregamos a una tabla de simbolos auxiliar
+    aux_table.push_symbol(p[2],'int')
+    stack_table.push(aux_table)
+    
+
+    # Verificamos que la variable de control del for no este siendo modificada
+    try:
+        if (p[0].sons[4].sons[0].sons[0].sons[0].sons[0].sons[0].sons[0].sons[0][0] == p[2]) and (p[0].sons[4].sons[0].sons[0].sons[0].sons[0].sons[0].sons[0].sons[0][2]=='Asig'):
+            print("Error: Esta cambiando la variable "+p[2]+", que es una variable de control de una instruccion ’for’")
+            sys.exit()
+    except:
+        pass
+
+    # aux_table.printTable()
 
 # Regla gramatical que deriva de la instruccion Do
 def p_Do(p):
@@ -339,6 +407,11 @@ def p_read(p):
     ''' read : TkRead TkId '''
     p[0]=Node([Token(p[2],"Ident")],"Read")
 
+    # Revisamos si la variable que se va a leer fue declarada
+    if not stack_table.is_in_table(p[2]):
+        print("Error: la variable "+p[2]+" esta intentando ser leida pero no ha sido declarada")
+        sys.exit()
+
 
 ############ INSTRUCCION PRINT ##############
 # Gramatica para imprimir expresiones
@@ -374,9 +447,9 @@ def p_tipo(p):
             | TkArray TkOBracket number TkSoForth number TkCBracket
     '''
     if len(p) == 2:
-        p[0]=p[1]
+        p[0]=Node([Token(p[1],"type")],None,type='type')
     else:
-        p[0]=[p[1],p[3],p[5]]
+        p[0]=Node([Token(p[1],'array'),p[3],p[5]],None,type='array')
 
 # Gramatica para literal numero (entero positivo o negativo)
 def p_number(p):
@@ -385,9 +458,9 @@ def p_number(p):
                | TkMinus TkNum
     '''
     if len(p) == 2:
-        p[0] = int(p[1])
+        p[0] = Node(Token(p[1]),type='int')
     else:
-        p[0] = int(p[1] + str(p[2]))
+        p[0] = Node(Token(p[1] + str(p[2])),type='int')
 
 # Gramatica de lambda (token vacio)
 def p_empty(p):
@@ -468,8 +541,11 @@ def p_factor(p):
               | TkId TkOBracket expresion TkCBracket
     '''
     # Caso en que es un numero, o true o false
-    if len(p) == 2 and (isinstance(p[1], int) or p[1] == 'true' or p[1] == 'false'):
-        p[0] = Node([Token(str(p[1]),"Literal")],None)
+    if len(p) == 2 and isinstance(p[1], int):
+        p[0] = Node([Token(str(p[1]),"Literal")],"Literal",type='int')
+
+    elif len(p) == 2 and p[1] == 'true' or p[1] == 'false':
+        p[0] = Node([Token(str(p[1]),"Literal")],"Literal",type='bool')
     
     # Caso en que es un string
     elif len(p) == 2 and re.match('"([^"\\\n]|\\"|\\\\|\\n)*"',p[1]):
@@ -551,11 +627,8 @@ result = parser.parse(entrada)
 
 #traducir(result)
 
-#result.imprimir(" ")
+result.imprimir(" ")
 
-print("TABLA DE SIMBOLOS")
-
-#print(stack_table.top().table) 
-
-for i in stack_table.stack:
-    print(i.table) 
+# PILA
+# for i in range(len(stack_table.stack)):
+#    print("ELEMENTO "+str(i) + " de la pila",stack_table.stack[i].printTable())

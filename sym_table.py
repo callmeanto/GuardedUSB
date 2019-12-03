@@ -30,19 +30,28 @@ class SymbolTable:
             print("Error, la variable " + id + " ya ha sido declarada")
             sys.exit()
 
-    '''# Funcion que modifica el valor del simbolo
-    def modificar_table(self, id, valor):
-        if not self.existe_table(id):
-            print("Error, la variable "+ id + " no ha sido declarada")
-        else:
-            self.table[id][1] = valor'''
-
     # Funcion que se encargara de verificar si el simbolo ya existe en la table
     def exists_table(self, id):
         if self.table.get(id) == None:
             return False
         else:
             return self.table[id]
+
+    # Metodo para imprimir bonito la tabla de simbolos
+    def printTable(self):
+        print('\n'+ "Symbols Table")
+        if self.table != {}:
+            aux = ''
+            for i in self.table.keys():
+                if self.table[i][0] != 'int' and self.table[i][0] != 'bool' :
+                    type = str(self.table[i][0][0][0]) + '['+str(self.table[i][0][0][1]) + '..' + str(self.table[i][0][0][2]) + ']'
+                else: 
+                    type = str(self.table[i][0])
+                aux = "variable: " + str(i) + " | " + "type: " + type
+                print(aux)
+            return aux
+        return ''
+
 
 
 # Implementacion de la clase Pila (de tables de simbolos)
@@ -60,9 +69,9 @@ class TableStack:
         self.stack.append(table)
         self.head = len(self.stack) - 1
 
-    # ELiminar table de la piña
+    # ELiminar table de la pila
     def pop(self):
-        if not self.empty:
+        if not self.empty():
             return self.stack.pop()
         else:
             p_error(1)
@@ -87,7 +96,7 @@ class TableStack:
     def modify_symbol(self, id, valor, indexacion=None):
         x = self.is_in_table(id)
         if not x:
-            print("Error, variable " + id + " no declarada")
+            print("Error: variable " + id + " no declarada")
             sys.exit()
         if indexacion == None:
             x[1] = valor
@@ -95,4 +104,4 @@ class TableStack:
             x[1][indexacion] = valor
 
     def empty(self):
-        return self.pila == []
+        return self.stack == []
