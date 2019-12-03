@@ -130,29 +130,41 @@ def get_children2(t):
         while(len(t.sons)>1):
             children.append(t.sons[0].token)
             t = t.sons[1]
+
+        children.append(t.sons[0].token)    
         return children
 
 children = []
 def get_children(t,first):
     global children
+    array = []
     if first and children != []: children = []
-    if isinstance(t,Token):
-        children.append(t.token)
-
-    elif isinstance(t.sons[0],Token):
+    
+    if isinstance(t.sons[0],Token) and t.sons[0].token != 'array':
         children.append(t.sons[0].token)
 
-    elif (len(t.sons)>1):
+    elif not isinstance(t.sons[0],Token) and (len(t.sons)>1):
         for i in range(len(t.sons)):
-            if isinstance(t.sons[i],Token):
-                children.append(t.sons[i].token)
-            if(t.sons[i] == None):
-                continue
+            # Si el nodo es de tipo array
+            # hay que agregar a la lista los limites superiores
+            # e inferiores
+            if(t.sons[i].type == 'array'):
+                array.append(t.sons[i].sons[0].token)
+                array.append(t.sons[i].sons[1].sons.token)
+                array.append(t.sons[i].sons[2].sons.token)
+                children.append(array)
             get_children(t.sons[i],False)
+
+    # Ultimo nodo
+    elif len(t.sons)==1:
+        if t.sons[0].sons[0].token == 'array':
+            array.append(t.sons[0].sons[0].token)
+            array.append(t.sons[0].sons[1].sons.token)
+            array.append(t.sons[0].sons[2].sons.token)
+            children.append(array)
+        else:    
+            children.append(t.sons[0].sons[0].token)
     return children
-
-
-
 
 
 # Metodo para contar cantidad de hojas en el sub arbol sintactico

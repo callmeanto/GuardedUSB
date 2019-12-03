@@ -85,30 +85,47 @@ def p_declaracionVariables(p):
         p[0] = Node([p[1],p[3],p[5],aux_table],"Declare",None)
         #p[0] = p[5]
 
+
+    # Verificamos que no se esten asignando menos tipos a las variables
+    children = get_children(p[3],True)
+          
+    if len(children) != len(get_children2(p[1])) and len(children) != 1 :
+        print("Error de sintaxis: esta asignando menos tipos de los que ha declarado")
+        sys.exit()
+
+ 
+
     for i in get_children2(p[1]):
 
-        children = get_children(p[3],True)
-
+        # Si la asignacion es de un solo tipo para todas las variables
+        # duplicamos el tipo en el arreglo de tipos k veces
+        # con k el numero de variables por comodidad de implementacion
+        if len(children)==1:
+            children = [children[0] for k in range(len( get_children2(p[1])))]
+       
+            
+        type = children.pop(0)
+        
         # Si el elemento al que deriva tipo es TkArray
-        if children.pop(0) != 'int' and children.pop(0) != 'bool' :
+        if type != 'int' and type != 'bool' :
             # Verificamos que las cotas esten correctas
-            if children.pop(0)[1] > children.pop(0)[2] :
+            if type[1] > type[2] :
                 print('Error: El limite inferior del arreglo ' + i +' debe ser menor que el superior')
                 sys.exit()
 
             arr = []
             # Inicializamos el arreglo, calculamos la longitud del mismo
-            arrlen = abs(children.pop(0)[2] - children.pop(0)[1]) + 1
+            arrlen = abs(type[2] - type[1]) + 1
             
             arr = [None for k in range(arrlen)]
         
             # Insertamos en la tabla el tipo con las cotas del arreglo y la longitud del arreglo
             # y los valores iniciales
             # este metodo ya verifica si la variable ha sido declarada
-            aux_table.push_symbol(i, [children.pop(0), arrlen],arr)
+            aux_table.push_symbol(i, [type, arrlen],arr)
 
         else:
-            aux_table.push_symbol(i, children.pop(0))
+            aux_table.push_symbol(i, type)
     
     # Insertamos la tabla
     stack_table.push(aux_table)
@@ -460,7 +477,7 @@ def p_number(p):
     if len(p) == 2:
         p[0] = Node(Token(p[1]),type='int')
     else:
-        p[0] = Node(Token(p[1] + str(p[2])),type='int')
+        p[0] = Node(Token(int(p[1] + str(p[2]))),type='int')
 
 # Gramatica de lambda (token vacio)
 def p_empty(p):
