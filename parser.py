@@ -81,9 +81,8 @@ def p_declaracionVariables(p):
 
     # Recursivo
     else:
-        #print("ENTRE")
         p[0] = Node([p[1],p[3],p[5],aux_table],"Declare",None)
-        #p[0] = p[5]
+        p[0] = p[5]
 
 
     # Verificamos que no se esten asignando menos tipos a las variables
@@ -130,12 +129,9 @@ def p_declaracionVariables(p):
     # Insertamos la tabla
     stack_table.push(aux_table)
 
-    # Imprimimos la tabla
-    #aux_table.printTable()
-    
 
 
-    
+# Gramatica para caso en que se tiene una lista de tipos separada por comas    
 def p_tipos(p):
     """
     tipos : tipo TkComma tipos
@@ -181,21 +177,21 @@ def p_asignacion(p):
 
             # Contemos la cantidad de elementos en listaExpresion
             count1 = leaf_count(p[3],True)
-
+        
             # Si el length del arreglo es menor al length de la lista de expresiones
             if int(value[0][1]) < count1:
-                print("Error: indice del arreglo '"+ p[0][0][0] +"' fuera del rango")
+                print("Error: indice del arreglo '"+ p[0].sons[0].token +"' fuera del rango")
                 sys.exit()
 
         else:
             # Es porque es de tipo bool o int
             # Primero verificamos que no se le esten asignando mas de una expresion a los tipos basicos
             if p[3].name == 'listaExpresion':
-                print("Error: no puede asignarle a la variable '" + p[0][0][0] +"' mas de una expresion porque tiene un tipo de dato basico")
+                print("Error: no puede asignarle a la variable '" + p[0].sons[0].token +"' mas de una expresion porque tiene un tipo de dato basico")
                 sys.exit()
             
             if not(value[0] == p[3].sons[0].sons[0].type):
-                print("Error: la variable '"+p[0][0][0] +"' es de tipo '"+ value[0] +"', no se le puede asignar algo de tipo '" + p[3].sons[0].sons[0].type +"'" )
+                print("Error: la variable '"+p[0].sons[0].token +"' es de tipo '"+ value[0] +"', no se le puede asignar algo de tipo '" + p[3].sons[0].sons[0].type +"'" )
                 sys.exit()
     except: pass
 
@@ -214,15 +210,27 @@ def p_listaExpresion(p):
 def p_asignacionArreglos(p):
     '''asignacionArreglos : TkId listaIndices posicionArreglo'''
     p[0] = Node([Token(p[1],"Ident"),p[2],p[3]],"ArrayAsig")
-    # p[0] = [p[1],p[2],p[3]]
-
-    # Verificamos que TkId sea de tipo array y este en la tabla
+    
+    # Verificamos que TkId sea de tipo array y este en alguna tabla de su scope
     value = stack_table.is_in_table(p[0].sons[0].token)
+    if value == False:
+        print("Error: Esta intentando asignar el arreglo '"+ p[0].sons[0].token +"' que no fue declarado")
+        sys.exit()
+    # Esta en la tabla pero no es de tipo array
+    elif value[0] == 'int' or value[0] == 'bool':
+        print("Error: la variable '"+p[0].sons[0].token+"' no es de tipo 'array'")
+        sys.exit()
 
+    # Esta en la tabla, es de tipo array pero no tiene nada asignado en el rango pedido o el rango es incorrecto
+    # consultamos en la tabla de simbolos
+    elif not (value[0][0][1]<= p[2].sons[0].sons.token <= value[0][0][2] ):
+        print("Error: Esta intentando indexar una posicion no valida del arreglo '"+ p[0].sons[0].token+"'")
+        sys.exit()
+    
 
 def p_listaIndices(p):
-    '''listaIndices : listaIndices TkOpenPar expresion TkTwoPoints expresion TkClosePar
-                    | TkOpenPar expresion TkTwoPoints expresion TkClosePar
+    '''listaIndices : listaIndices TkOpenPar number TkTwoPoints number TkClosePar
+                    | TkOpenPar number TkTwoPoints number TkClosePar
     '''
     if len(p) == 7:
         p[0] = Node([p[1],p[3], p[5]],"ArrayAsig")
