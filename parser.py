@@ -102,19 +102,18 @@ def p_declaracionVariables(p):
         if len(children)==1:
             children = [children[0] for k in range(len( get_children2(p[1])))]
        
-            
         type = children.pop(0)
         
         # Si el elemento al que deriva tipo es TkArray
         if type != 'int' and type != 'bool' :
             # Verificamos que las cotas esten correctas
-            if type[1] > type[2] :
+            if int(type[1]) > int(type[2]) :
                 print('Error: El limite inferior del arreglo ' + i +' debe ser menor que el superior')
                 sys.exit()
 
             arr = []
             # Inicializamos el arreglo, calculamos la longitud del mismo
-            arrlen = abs(type[2] - type[1]) + 1
+            arrlen = abs(int(type[2]) - int(type[1])) + 1
             
             arr = [None for k in range(arrlen)]
         
@@ -155,25 +154,31 @@ def p_listaDeclaraciones(p):
 
 # Gramatica para asignacion de variables
 def p_asignacion(p):
-    '''asignacion : TkId TkAsig expresion
-                  | TkId TkAsig listaExpresion
+    '''asignacion : TkId TkAsig listaExpresion
                   | TkId TkAsig asignacionArreglos
     '''
     p[0]= Node([Token(p[1],"Ident"), p[3]], "Asig")
 
-    # p[0] = [p[1],p[3],"Asig"]
-
-    
     value = stack_table.is_in_table(p[0].sons[0].token)
+
     # Verificamos que la variable a asignar ya fue declarada
     if value is False:
         print("La variable " + p[0].sons[0].token + " esta intentando ser asignada pero no fue declarada")
         sys.exit()
 
     # Verificamos el tipo de las variables
-    # Es porque es de tipo arreglo con asignacion por lista
-    try:
-        if value[0][0][0] == 'array' and p[3].sons[0].name == 'listaExpresion':
+
+    ########## ARRAYS ##########
+    if (value[0] != 'bool') and (value[0] != 'int'):
+        
+        # Asignacion que deriva a expresion
+        if (p[3].sons[-1].type == 'EvalArray'):
+            print("Error: No se puede asignar una expresion al arreglo '"+ p[0].sons[0].token +"'")
+            sys.exit()
+
+
+        # Es porque es de tipo arreglo con asignacion por lista
+        if (p[3].sons[0].type == 'listaExpresion'):
 
             # Contemos la cantidad de elementos en listaExpresion
             count1 = leaf_count(p[3],True)
@@ -182,70 +187,80 @@ def p_asignacion(p):
             if int(value[0][1]) < count1:
                 print("Error: indice del arreglo '"+ p[0].sons[0].token +"' fuera del rango")
                 sys.exit()
-
-        else:
-            # Es porque es de tipo bool o int
-            # Primero verificamos que no se le esten asignando mas de una expresion a los tipos basicos
-            if p[3].name == 'listaExpresion':
-                print("Error: no puede asignarle a la variable '" + p[0].sons[0].token +"' mas de una expresion porque tiene un tipo de dato basico")
-                sys.exit()
+        
+        # Si es de tipo array y se le esta aisgnando otro arreglo
+        if (p[3].sons[0].type == 'ArrayAsig'):
             
-            if not(value[0] == p[3].sons[0].sons[0].type):
-                print("Error: la variable '"+p[0].sons[0].token +"' es de tipo '"+ value[0] +"', no se le puede asignar algo de tipo '" + p[3].sons[0].sons[0].type +"'" )
+            # Esta en la tabla pero no es de tipo array
+            if value[0] == 'int' or value[0] == 'bool':
+                print("Error: la variable '"+p[0].sons[0].token+"' no es de tipo 'array'")
                 sys.exit()
-    except: pass
 
+            # Esta en la tabla, es de tipo array pero no tiene nada asignado en el rango pedido o el rango es incorrecto
+            # consultamos en la tabla de simbolos
+            if not (int(value[0][0][1])<= int(p[2].sons[0].sons[0].token) <= int(value[0][0][2]) ):
+                print("Error: Esta intentando indexar una posicion no valida del arreglo '"+ p[0].sons[0].token+"'")
+                sys.exit()
+
+        
+        
+    
+    ########## TIPOS BASICOS #############
+    else: 
+        # Primero verificamos que no se le esten asignando mas de una expresion a los tipos basicos
+        if p[3].type == 'listaExpresion':
+            print("Error: no puede asignarle a la variable '" + p[0].sons[0].token +"' mas de una expresion porque tiene un tipo de dato basico")
+            sys.exit()
+
+        # Verificamos que no se le este asignando un arreglo
+        if (p[3].type == 'ArrayAsig' and isinstance(p[3].sons[2],Null)):
+            print("Error: no puede asignarle a la variable '" + p[0].sons[0].token +"' un arreglo")
+            sys.exit()
+
+        #print(p[3].sons[0].sons)
+
+        # Ahora verificamos que el tipo coincida
+        try:
+            if not(value[0] == p[3].sons[0].sons[0].type):
+                    print("Error: la variable '"+p[0].sons[0].token +"' es de tipo '"+ value[0] +"', no se le puede asignar algo de tipo '" + p[3].sons[0].sons[0].type +"'" )
+                    sys.exit()
+        except: pass
+            
 # Gramatica para lista de expresiones a asignar en arreglos y variables
 def p_listaExpresion(p):
     '''listaExpresion : listaExpresion TkComma expresion
                       | expresion
     '''
     if len(p) == 2:
-        p[0] = Node([p[1]],None)
+        p[0] = Node([p[1]],type="listaExp")
         
     else:
-        p[0]= Node([p[1], p[3]], "listaExpresion")
+        p[0]= Node([p[1], p[3]], type="listaExpresion")
         
 # Gramatica para asignacion de arreglos
 def p_asignacionArreglos(p):
     '''asignacionArreglos : TkId listaIndices posicionArreglo'''
-    p[0] = Node([Token(p[1],"Ident"),p[2],p[3]],"ArrayAsig")
-    
-    # Verificamos que TkId sea de tipo array y este en alguna tabla de su scope
-    value = stack_table.is_in_table(p[0].sons[0].token)
-    if value == False:
-        print("Error: Esta intentando asignar el arreglo '"+ p[0].sons[0].token +"' que no fue declarado")
-        sys.exit()
-    # Esta en la tabla pero no es de tipo array
-    elif value[0] == 'int' or value[0] == 'bool':
-        print("Error: la variable '"+p[0].sons[0].token+"' no es de tipo 'array'")
-        sys.exit()
 
-    # Esta en la tabla, es de tipo array pero no tiene nada asignado en el rango pedido o el rango es incorrecto
-    # consultamos en la tabla de simbolos
-    elif not (value[0][0][1]<= p[2].sons[0].sons.token <= value[0][0][2] ):
-        print("Error: Esta intentando indexar una posicion no valida del arreglo '"+ p[0].sons[0].token+"'")
-        sys.exit()
-    
+    p[0] = Node([Token(p[1],"Ident"),p[2],p[3]],type="ArrayAsig")
 
 def p_listaIndices(p):
     '''listaIndices : listaIndices TkOpenPar number TkTwoPoints number TkClosePar
                     | TkOpenPar number TkTwoPoints number TkClosePar
     '''
     if len(p) == 7:
-        p[0] = Node([p[1],p[3], p[5]],"ArrayAsig")
+        p[0] = Node([p[1],p[3], p[5]],type="ArrayAsig1")
     else:
-        p[0] = Node([p[2],p[4]],"ArrayAsig")
+        p[0] = Node([p[2],p[4]],type="ArrayAsig2")
         
 
 def p_posicionArreglo(p):
-    '''posicionArreglo : TkOBracket TkNum TkCBracket
+    '''posicionArreglo : TkOBracket number TkCBracket
                        | empty
     '''
     if len(p) == 2:
         p[0] = Null()
     else:
-        p[0] = Node([Token(str(p[2]),"Literal")],"EvalArray")
+        p[0] = Node([p[2]],type="EvalArray")
 
 
 # Funcion que describe la regla gramatical que genera una instruccion
@@ -373,10 +388,10 @@ def p_condicion(p):
     '''
     # Caso en que solo hay una expresion
     if len(p)==2:
-        p[0]=Node([p[1]], None)
+        p[0]=Node([p[1]], type="bool_op")
     # Caso en que hay condicion operador y expresion/ expresion relacion expresion
     elif len(p)== 4:
-        p[0]=Node([p[1],p[2],p[3]], None)
+        p[0]=Node([p[1],p[2],p[3]], type="bool_op")
    
 
 # Regla gramatical para definir operadores booleanos
@@ -387,11 +402,11 @@ def p_operadorBool(p):
     
     '''
     if p[1] == "\/":
-        p[0]=Node(None,"Or")
+        p[0]=Node(None,"Or",type="bool_op")
     if p[1] == '!':
-        p[0] = Node(None,"Not")
+        p[0] = Node(None,"Not",type="bool_op")
     else:
-        p[0]=Node(None,"And")
+        p[0]=Node(None,"And",type="bool_op")
 
 # Regla gramatical que define los simbolos de una relacion, 
 # deriva en los tokens definidos para el lenguaje
@@ -405,17 +420,17 @@ def p_relacion(p):
              | TkNEqual
     '''
     if p[1] == "<":
-        p[0]=Node(None, "Less")
+        p[0]=Node(None, "Less",type="bool_op")
     elif p[1] == ">":
-        p[0] = Node(None,"Greater")
+        p[0] = Node(None,"Greater",type="bool_op")
     elif p[1] == "<=":
-        p[0] = Node(None,"Leq")
+        p[0] = Node(None,"Leq",type="bool_op")
     elif p[1] == ">=":
-        p[0] = Node(None,"Geq")
+        p[0] = Node(None,"Geq",type="bool_op")
     elif p[1] == "==":
-        p[0] = Node(None,"Equal")
+        p[0] = Node(None,"Equal",type="bool_op")
     elif p[1] == "!=":
-        p[0] = Node(None,"NEqual")
+        p[0] = Node(None,"NEqual",type="bool_op")
 
 
 
@@ -483,9 +498,9 @@ def p_number(p):
                | TkMinus TkNum
     '''
     if len(p) == 2:
-        p[0] = Node(Token(p[1]),type='int')
+        p[0] = Node([Token(str(p[1]),'Literal')],type='int')
     else:
-        p[0] = Node(Token(int(p[1] + str(p[2]))),type='int')
+        p[0] = Node([Token((p[1] + str(p[2]) ),'Literal') ],type='int')
 
 # Gramatica de lambda (token vacio)
 def p_empty(p):
@@ -510,14 +525,25 @@ def p_expresion(p):
     '''
     # Caso en que es un solo termino
     if len(p) == 2:
-        p[0]=Node([p[1]], "Exp")
-    # Caso en que es un termino y un operador numerico / un bool y una expresion
-    elif len(p) == 3:
-        p[0] = Node([p[1],p[2]],"Exp")
-    elif len(p) == 4:
-        p[0] = Node([p[1],p[2],p[3]],"Exp")
+        p[0]=Node([p[1]], type="Exp")
+
+    # Caso en que es una funcion embebida
+    elif len(p) == 2 and p[2].type == 'embed':
+        p[0]=Node([p[1]], type="embed")
+
+    # Caso en que es un bool y una expresion
+    elif len(p) == 3 and p[1].type == 'bool_op':
+        p[0] = Node([p[1],p[2]],type="bool_exp")
+
+    # Caso en que es un termino y un addingOperator
+    elif len(p) == 3 and p[2].sons[0].type == 'int':
+        p[0] = Node([p[1],p[2]],type="arit_exp")
+
+    elif len(p) == 4 and p[2].type == 'bool_op':
+        p[0] = Node([p[1],p[2],p[3]],type="bool_exp")
+
     else:
-        p[0] = Node([p[1],p[2],p[3]],"Exp") 
+        p[0] = Node([p[1],p[2],p[3]],type="Exp") 
 
 # Regla gramatical para operadores aritmeticos
 def p_addingOperator(p):
@@ -525,9 +551,9 @@ def p_addingOperator(p):
                       | TkMinus
     '''
     if p[1] == '+':
-        p[0]=Node(None, "Plus")
+        p[0]=Node(None, "Plus",type="arit_op")
     else:
-        p[0]=Node(None,"Minus")
+        p[0]=Node(None,"Minus",type="arit_op")
 
 # Regla gramatical para simbolo de terminos
 def p_term(p):
@@ -535,9 +561,9 @@ def p_term(p):
             | term multiplyingOperator factor
     '''
     if len(p) == 2:
-        p[0] = Node([p[1]], None)
+        p[0] = Node([p[1]])
     else:
-        p[0] = Node([p[1],p[2],p[3]], None)
+        p[0] = Node([p[1],p[2],p[3]])
     
 # Regla gramatical para operadores multiplicativos
 def p_multiplyingOperator(p):
@@ -546,11 +572,11 @@ def p_multiplyingOperator(p):
                            | TkMod
     '''
     if p[1] == '*':
-        p[0]=Node(None, "Mult")
+        p[0]=Node(None, "Mult",type="arit_op")
     elif p[1] == '/':
-        p[0]=Node(None,"Div")
+        p[0]=Node(None,"Div",type="arit_op")
     else:
-        p[0] = Node(None,"Mod")
+        p[0] = Node(None,"Mod",type="arit_op")
     
 # Regla gramatical para expresiones de tipo factor:
 # variables, numericas, strings, funciones, booleanos
@@ -565,24 +591,25 @@ def p_factor(p):
               | TkOpenPar expresion TkClosePar
               | TkId TkOBracket expresion TkCBracket
     '''
-    # Caso en que es un numero, o true o false
+    # Caso en que es un numero
     if len(p) == 2 and isinstance(p[1], int):
-        p[0] = Node([Token(str(p[1]),"Literal")],"Literal",type='int')
+        p[0] = Node([Token(str(p[1]),"Literal",type='int')])
 
+    # Caso en que es true or false
     elif len(p) == 2 and p[1] == 'true' or p[1] == 'false':
-        p[0] = Node([Token(str(p[1]),"Literal")],"Literal",type='bool')
+        p[0] = Node([Token(str(p[1]),name="Literal",type='bool')])
     
     # Caso en que es un string
     elif len(p) == 2 and re.match('"([^"\\\n]|\\"|\\\\|\\n)*"',p[1]):
-        p[0] = Node([Token(p[1],"String")],None)
+        p[0] = Node([Token(p[1],name="String")])
 
     # Caso en que es un Id
     elif len(p) == 2:
-        p[0] = Node([Token(p[1],"Ident")],None)
+        p[0] = Node([Token(p[1],name="Ident")])
     
     # Caso en que es numero con simbolo menos delante
     elif isinstance(p[2], int):
-        p[0] = Node([Token(str(p[1]),"Literal")],None)
+        p[0] = Node([Token(str(p[1]),name="Literal",type='int')])
 
     # Caso en que es una expresion entre parentesis    
     elif len(p) == 4:
@@ -590,7 +617,7 @@ def p_factor(p):
 
     # Caso en que es una expresion id[exp]
     elif len(p) == 5:
-        p[0]=Node([Token(p[1],"Ident"),p[3]],None)
+        p[0]=Node([Token(p[1],name="Ident"),p[3]])
 
 # Regla gramatical para funciones embebidas
 def p_embed(p):
@@ -600,13 +627,13 @@ def p_embed(p):
              | TkSize TkOpenPar TkId TkClosePar
     '''
     if p[1] == 'max':
-        p[0]=Node([Token(p[3],"Ident")], "Max")
+        p[0]=Node([Token(p[3],"Ident")], "Max",type="embed")
     if p[1] == 'min':
-        p[0]=Node([Token(p[3],"Ident")], "Min")
+        p[0]=Node([Token(p[3],"Ident")], "Min",type="embed")
     if p[1] == 'atoi':
-        p[0]=Node([Token(p[3],"Ident")], "Atoi")
+        p[0]=Node([Token(p[3],"Ident")], "Atoi",type="embed")
     if p[1] == 'size':
-        p[0]=Node([Token(p[3],"Ident")], "Size")
+        p[0]=Node([Token(p[3],"Ident")], "Size",type="embed")
 
 
 # Regla gramatical para el manejo de errores de sintaxis

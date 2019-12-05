@@ -100,9 +100,10 @@ class Node():
 # Clase especial unicamente para simbolos terminales que
 # se imprimen, como los Id, Literales y strings 
 class Token():
-    def __init__(self, token=None, name=None):
+    def __init__(self, token=None, name=None,type=None):
         self.token = token
         self.name = name
+        self.type = type
 
     def imprimir(self, ident):
         if self.token != None:
@@ -150,8 +151,8 @@ def get_children(t,first):
             # e inferiores
             if(t.sons[i].type == 'array'):
                 array.append(t.sons[i].sons[0].token)
-                array.append(t.sons[i].sons[1].sons.token)
-                array.append(t.sons[i].sons[2].sons.token)
+                array.append(t.sons[i].sons[1].sons[0].token)
+                array.append(t.sons[i].sons[2].sons[0].token)
                 children.append(array)
             get_children(t.sons[i],False)
 
@@ -159,8 +160,8 @@ def get_children(t,first):
     elif len(t.sons)==1:
         if t.sons[0].sons[0].token == 'array':
             array.append(t.sons[0].sons[0].token)
-            array.append(t.sons[0].sons[1].sons.token)
-            array.append(t.sons[0].sons[2].sons.token)
+            array.append(t.sons[0].sons[1].sons[0].token)
+            array.append(t.sons[0].sons[2].sons[0].token)
             children.append(array)
         else:    
             children.append(t.sons[0].sons[0].token)
@@ -175,10 +176,10 @@ def leaf_count(t,first):
     global count
     if first and count != 0: count = 0
     for son in t.sons:
-        if (son.name == "Literal" and son.type != 'int') or (son.name == "Ident"):
+        if isinstance(son,Token) and ((son.name == "Literal" and son.type != 'int') or (son.name == "Ident") or (son.name == "String")):
             print("Error: los arreglos deben ser de tipo entero")
             sys.exit()
-        if son.name == "Literal":
+        if isinstance(son,Token):
             # llegamos a una hoja
             count += 1            
         else:
