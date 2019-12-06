@@ -45,9 +45,11 @@ class SymbolTable:
             for i in self.table.keys():
                 if self.table[i][0] != 'int' and self.table[i][0] != 'bool' :
                     type = str(self.table[i][0][0][0]) + '['+str(self.table[i][0][0][1]) + '..' + str(self.table[i][0][0][2]) + ']'
+                    value = str(self.table[i][1])
                 else: 
                     type = str(self.table[i][0])
-                aux = "variable: " + str(i) + " | " + "type: " + type
+                    value = str(self.table[i][1])
+                aux = "variable: " + str(i) + " | " + "type: " + type + value
                 print(aux)
             return aux
         return ''

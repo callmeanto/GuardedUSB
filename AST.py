@@ -172,17 +172,37 @@ def get_children(t,first):
 # Metodo auxiliar para saber cuantos nodos terminales
 # hay en una derivacion
 count = 0
+leaves = []
 def leaf_count(t,first):
     global count
+    global leaves
     if first and count != 0: count = 0
+    if first and leaves != []: leaves = []
     for son in t.sons:
         if isinstance(son,Token) and ((son.name == "Literal" and son.type != 'int') or (son.name == "Ident") or (son.name == "String")):
             print("Error: los arreglos deben ser de tipo entero")
             sys.exit()
         if isinstance(son,Token):
             # llegamos a una hoja
-            count += 1            
+            count += 1
+            leaves.append(son.token)          
         else:
             # hay que seguir recorriendo
             leaf_count(son,False)
-    return count
+    return count,leaves
+
+
+# Obtener las hojas de un subarbol
+result = []
+def leaf(t,first):
+    global result
+    if first and result != []: result = []
+
+    for son in t.sons:
+        if isinstance(son,Token):
+            # llegamos a una hoja
+            result.append([son.token,son.type])          
+        else:
+            # hay que seguir recorriendo
+            leaf(son,False)
+    return result

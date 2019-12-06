@@ -1,14 +1,29 @@
 |[
-
-declare 
-
-a,b:int,int
-
-a := 5;
-b := 7;
-
-print a+b
-
-
-
+declare
+    a, b, c,A,d: array[0..3], bool, array[0..2],array[-2..2],int
+    b := true;
+    a := 1,2,3,4;
+    d := A(2:3)[2];
+    if x==y -->
+        d := 4
+    [] x != y -->
+        |[
+            declare
+                d,e : int, array[-5..-2]
+                e := 4,2,3,5;
+            println true;
+            d := 4;
+            c:=1,2,3;
+            println "Value: " || d
+        ]|
+    fi;
+    for a in 1 to count -->
+        |[
+            declare value:int
+            a := 1/0;
+            read value;
+            print a;
+            print a
+        ]|
+    rof
 ]|

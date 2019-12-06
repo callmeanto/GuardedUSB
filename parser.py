@@ -10,11 +10,11 @@ from AST import *
 from sym_table import *
 
 # GuardedUSB Interpreter
-# Segunda etapa: Analizador Sintactico
+# INTERPRETE
 # Lenguaje de implementacion del Interprete: Python 3
 # Autores: Carlos Gonzalez y Antonella Requena
 # Carnets: 15-10611 15-11196
-# Fecha ultimo update: 10/11/2019
+# Fecha ultimo update: 5/12/2019
 # Descripcion: se implemento un lexer utilizando la libreria .ply de python, el siguiente programa recibe un archivo y retorna la lista de "tokens"
 # o elementos atomicos del lenguaje si pertenecen, o da un mensaje de error si
 # encuentra un caracter que no pertenece al lenguaje. Asi mismo, indica la posicion en donde se encuentra.
@@ -22,8 +22,6 @@ from sym_table import *
 
 # Inicializamos las estructuras a utilizar 
 # para chequeo de semantica
-
-
 
 # Utilizamos una pila para las tablas de simbolos
 stack_table = TableStack()
@@ -68,7 +66,7 @@ def p_t(p):
         p[0] = Node([p[1]],None)
     
 
-# Gramatica para declaracion de variables #
+# Gramatica para declaracion de variables 
 def p_declaracionVariables(p):
     '''declaracionVariables : listaDeclaraciones TkTwoPoints tipos TkSemicolon declaracionVariables
                             | listaDeclaraciones TkTwoPoints tipos
@@ -171,6 +169,10 @@ def p_asignacion(p):
     ########## ARRAYS ##########
     if (value[0] != 'bool') and (value[0] != 'int'):
         
+         # Contemos la cantidad de elementos en listaExpresion
+        result = leaf_count(p[3],True)
+        count1 = result[0]
+
         # Asignacion que deriva a expresion
         if (p[3].sons[-1].type == 'EvalArray'):
             print("Error: No se puede asignar una expresion al arreglo '"+ p[0].sons[0].token +"'")
@@ -180,9 +182,7 @@ def p_asignacion(p):
         # Es porque es de tipo arreglo con asignacion por lista
         if (p[3].sons[0].type == 'listaExpresion'):
 
-            # Contemos la cantidad de elementos en listaExpresion
-            count1 = leaf_count(p[3],True)
-        
+           
             # Si el length del arreglo es menor al length de la lista de expresiones
             if int(value[0][1]) < count1:
                 print("Error: indice del arreglo '"+ p[0].sons[0].token +"' fuera del rango")
@@ -201,7 +201,12 @@ def p_asignacion(p):
             if not (int(value[0][0][1])<= int(p[2].sons[0].sons[0].token) <= int(value[0][0][2]) ):
                 print("Error: Esta intentando indexar una posicion no valida del arreglo '"+ p[0].sons[0].token+"'")
                 sys.exit()
-
+        
+        # SI PASA LAS PRUEBAS DE FUEGO, PODEMOS ASIGNAR LOS VALORES EN LA TABLA DE SIMBOLOS
+        i = 0
+        for value in result[1]:
+            stack_table.modify_symbol(p[0].sons[0].token,value,i)
+            i+=1
         
         
     
@@ -226,6 +231,24 @@ def p_asignacion(p):
                     sys.exit()
         except: pass
             
+        ################# ASIGNACION  DE VALORES ###########
+        # Ya que todos los errores fueron verificados, procedemos a agregar los valores en la tabla de simbolos
+        result = leaf(p[3],True)
+        if value[0] == 'bool' and len(result) > 1:
+            print("Error: No puede asignar una expresion aritmetica a un booleano")
+            sys.exit()
+
+        # Caso en que a la variable se le asigna una expresion de arreglo indizado
+        elif value[0] == 'int' and len(result) > 1:
+            stack_table.modify_symbol(p[0].sons[0].token,result[2][0])
+        else:
+            stack_table.modify_symbol(p[0].sons[0].token,result[0][0])
+
+        # imprimimos de prueba
+        # stack_table.top().printTable()
+
+
+
 # Gramatica para lista de expresiones a asignar en arreglos y variables
 def p_listaExpresion(p):
     '''listaExpresion : listaExpresion TkComma expresion
@@ -452,6 +475,18 @@ def p_read(p):
         print("Error: la variable "+p[2]+" esta intentando ser leida pero no ha sido declarada")
         sys.exit()
 
+    # Ahora que lo que se este leyendo coincida con el tipo declarado en la tabla
+    varead = input()
+
+    if isinstance(varead,int) and stack_table.is_in_table(p[2])[0] != 'int':
+        print("La variable que desea leer no coincide con el tipo declarado")
+        sys.exit()
+    
+    # Modificamos el valor en la tabla
+    stack_table.modify_symbol(p[2],varead)
+
+    # stack_table.top().printTable()
+
 
 ############ INSTRUCCION PRINT ##############
 # Gramatica para imprimir expresiones
@@ -460,12 +495,52 @@ def p_print(p):
     ''' print : TkPrint concatPrint 
               | TkPrintln concatPrint
     '''
+    # print sin salto de linea
+    p[0]=Node([p[2]],"Print")
+
+    # Revisamos si la variable que se va a imprimir fue declarada
+    values = leaf(p[0],True)
+    impr =" "
+    impr1 =" "
+    impr2 = " "
+    for i in values:
+        # variable no declarada
+        key = stack_table.is_in_table(i[0])
+        if not key:
+            if i[1] == 'id':
+                print("Error: la expresion '"+i[0]+"' no esta definida")
+                sys.exit()
+        else:
+            # si es una variable de tipo basico declarada pero no inicializada
+            if i[1] == 'id' and ((key[0] == 'int' or key[0] == 'bool') and key[1] == None):
+                print("Error: la expresion '"+i[0]+"' no esta inicializada. No se puede imprimir")
+                sys.exit()
+            # si es un arreglo no inicializado
+            elif not (key[0] == 'int' or key[0] == 'bool'):
+                for j in range(key[0][1]):
+                    if key[1][j] == None:
+                        print("Error: el arreglo '"+i[0] +"' no ha sido inicializado. No se puede imprimir")
+                        sys.exit()
+                
+                # Imprimimos con formato el arreglo
+                lower = int(key[0][0][1])
+                upper = int(key[0][0][2])
+                arrvalue = key[1]
+                for j in range(lower,upper+1):
+
+                    impr += str(j) +":"+key[1][j]+","+" "
+
+            elif i[1] == 'id' and key:
+                impr += key[1]+" "
+
+        if i[1] != 'id':
+            impr += i[0]+" "
     if p[1] == 'print':
-        p[0]=Node([p[2]],"Print")
+        print(impr, end = '')
     else:
-        p[0]=Node([p[2]],"Println")
+        print(impr+'\n')
 
-
+    
 # Regla gramatical para concatenar expresiones
 def p_concatPrint(p):
     '''concatPrint : concatPrint TkConcat expresion
@@ -537,6 +612,44 @@ def p_expresion(p):
 
     # Caso en que es un termino y un addingOperator
     elif len(p) == 3 and p[2].sons[0].type == 'int':
+
+        # Calculamos la suma o la resta
+        # Convertimos a entero los elementos del arreglo
+        term1 = leaf(p[1],True)
+        term2 = leaf(p[3],True)
+
+        #Verificamos el tipo de term2
+        if term2[0][1] != 'int':
+            print("Error: No puede hacer operaciones aritmeticas con expresiones no enteras")
+            sys.exit()
+
+        term2 = int(term2[0][0])
+        
+        result = 0
+        
+        # Verificamos que sean de tipo entero las expresiones obtenidas
+        j = 0
+        for i in term1:
+            if i[1] != 'int':
+                print("Error: no puede operar con expresiones que no sean aritmeticas")
+                sys.exit()
+            term1[j] = int(i[0])
+            j += 1
+        
+        # Suma
+        if p[2].sons[0].type == 'plus':
+            result = 0
+            for i in term1:
+                result += i
+            result = result + term2
+
+        # Resta
+        if p[2].sons[0].type == 'minus':
+            result = 0
+            for i in term1:
+                result -= i
+            result = result - term2
+
         p[0] = Node([p[1],p[2]],type="arit_exp")
 
     elif len(p) == 4 and p[2].type == 'bool_op':
@@ -551,9 +664,9 @@ def p_addingOperator(p):
                       | TkMinus
     '''
     if p[1] == '+':
-        p[0]=Node(None, "Plus",type="arit_op")
+        p[0]=Node(Token(None,type='plus'), "Plus",type="arit_op")
     else:
-        p[0]=Node(None,"Minus",type="arit_op")
+        p[0]=Node(Token(None,type='minus'),"Minus",type="arit_op")
 
 # Regla gramatical para simbolo de terminos
 def p_term(p):
@@ -562,8 +675,61 @@ def p_term(p):
     '''
     if len(p) == 2:
         p[0] = Node([p[1]])
+
+    # Calculamos las operaciones aritmeticas y lo guardamos como ultimo hijo
     else:
-        p[0] = Node([p[1],p[2],p[3]])
+        # Convertimos a entero los elementos del arreglo
+        term1 = leaf(p[1],True)
+        term2 = leaf(p[3],True)
+        #Verificamos el tipo de term2
+        if term2[0][1] != 'int':
+            print("Error: No puede hacer operaciones aritmeticas con expresiones no enteras")
+            sys.exit()
+            
+        term2 = int(term2[0][0])
+        
+        result = 0
+        # Verificamos que sean de tipo entero las expresiones obtenidas
+        j = 0
+        for i in term1:
+            if i[1] != 'int':
+                print("Error: no puede operar con expresiones que no sean aritmeticas")
+                sys.exit()
+            term1[j] = int(i[0])
+            j += 1
+        
+        # Multiplicacion
+        if p[2].sons[0].type == 'mult':
+            result = 1
+            for i in term1:
+                result *= i
+            result = result * term2
+
+        # Division
+        if p[2].sons[0].type == 'div':
+            if term2 == 0:
+                print("Error: division por 0")
+                sys.exit()
+
+            result = term1.pop(0)   
+            for i in term1:
+                if i == 0:
+                    print("Error: division por 0")
+                    sys.exit()
+                
+                result = result / i
+            result = result / term2 
+        
+        # Mod
+        if p[2].sons[0].type == 'mod':
+            
+            result = term1.pop(0)   
+            for i in term1:        
+                result = result % i
+            result = result % term2 
+
+
+        p[0] = Node([p[1],p[2],p[3],result])
     
 # Regla gramatical para operadores multiplicativos
 def p_multiplyingOperator(p):
@@ -572,11 +738,11 @@ def p_multiplyingOperator(p):
                            | TkMod
     '''
     if p[1] == '*':
-        p[0]=Node(None, "Mult",type="arit_op")
+        p[0]=Node([Token(p[1],type="mult")], "Mult",type="arit_op")
     elif p[1] == '/':
-        p[0]=Node(None,"Div",type="arit_op")
+        p[0]=Node([Token(p[1],type="div")],"Div",type="arit_op")
     else:
-        p[0] = Node(None,"Mod",type="arit_op")
+        p[0] = Node([Token(p[1],type="mod")],"Mod",type="arit_op")
     
 # Regla gramatical para expresiones de tipo factor:
 # variables, numericas, strings, funciones, booleanos
@@ -601,11 +767,11 @@ def p_factor(p):
     
     # Caso en que es un string
     elif len(p) == 2 and re.match('"([^"\\\n]|\\"|\\\\|\\n)*"',p[1]):
-        p[0] = Node([Token(p[1],name="String")])
+        p[0] = Node([Token(p[1],type="string")])
 
     # Caso en que es un Id
     elif len(p) == 2:
-        p[0] = Node([Token(p[1],name="Ident")])
+        p[0] = Node([Token(p[1],type="id")])
     
     # Caso en que es numero con simbolo menos delante
     elif isinstance(p[2], int):
@@ -617,7 +783,7 @@ def p_factor(p):
 
     # Caso en que es una expresion id[exp]
     elif len(p) == 5:
-        p[0]=Node([Token(p[1],name="Ident"),p[3]])
+        p[0]=Node([Token(p[1],type="aid"),p[3]])
 
 # Regla gramatical para funciones embebidas
 def p_embed(p):
@@ -679,7 +845,7 @@ result = parser.parse(entrada)
 
 #traducir(result)
 
-result.imprimir(" ")
+#result.imprimir(" ")
 
 # PILA
 # for i in range(len(stack_table.stack)):
