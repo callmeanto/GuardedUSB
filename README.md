@@ -1,4 +1,4 @@
-# python-interpreter
+# GuardedUSB-interpreter
 An Interpreter made for the class Translators and Interpreters from Computer Science course
 
 # Requirements
